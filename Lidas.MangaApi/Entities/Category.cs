@@ -4,7 +4,6 @@ public class Category
 {
     public Guid Id { get; set; }
     public string Name { get; set; }
-    public List<Manga> Mangas { get; set; }
 
     public bool IsDeleted { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -14,7 +13,6 @@ public class Category
     {
         Id = Guid.NewGuid();
         Name = name;
-        Mangas = new List<Manga>();
 
         IsDeleted = false;
         CreatedAt = DateTime.Now;

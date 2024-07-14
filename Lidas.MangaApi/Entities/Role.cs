@@ -4,7 +4,6 @@ public class Role
 {
     public Guid Id { get; set; }
     public string Name { get; set; }
-    public List<Author> Author { get; set; }
 
     public bool IsDeleted { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -14,7 +13,6 @@ public class Role
     {
         Id = Guid.NewGuid();
         Name = name;
-        Author = new List<Author>();
 
         IsDeleted = false;
         CreatedAt = DateTime.Now;

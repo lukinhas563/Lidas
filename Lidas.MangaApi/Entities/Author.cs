@@ -7,7 +7,6 @@ public class Author
     public string Biography { get; set; }
     public DateTime Birthday { get; set; }
     public List<Role> Roles { get; set; }
-    public List<Manga> Mangas { get; set; }
 
     public bool IsDeleted { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -21,7 +20,6 @@ public class Author
         Birthday = birthday;
 
         Roles = new List<Role>();
-        Mangas = new List<Manga>();
 
         IsDeleted = false;
         CreatedAt = DateTime.Now;
