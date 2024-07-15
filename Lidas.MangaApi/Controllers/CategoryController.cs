@@ -2,10 +2,11 @@
 using Lidas.MangaApi.Persist;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace Lidas.MangaApi.Controllers
 {
-    [Route("api/manga/{mangaId}/category")]
+    [Route("api/category")]
     [ApiController]
     public class CategoryController : ControllerBase
     {
@@ -17,25 +18,17 @@ namespace Lidas.MangaApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll(Guid mangaId)
+        public IActionResult GetAll()
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId && !manga.IsDeleted);
-
-            if (manga == null) return NotFound();
-
-            var categories = manga.Categories;
+            var categories = _context.Categories.Where(category => !category.IsDeleted).ToList();
 
             return Ok(categories);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(Guid mangaId, Guid id)
+        public IActionResult GetById(Guid id)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId && !manga.IsDeleted);
-
-            if (manga == null) return NotFound();
-
-            var category = manga.Categories.SingleOrDefault(category => category.Id == id && !category.IsDeleted);
+            var category = _context.Categories.SingleOrDefault(category => category.Id == id && !category.IsDeleted);
 
             if (category == null) return NotFound();
 
@@ -43,25 +36,17 @@ namespace Lidas.MangaApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Guid mangaId, Category category)
+        public IActionResult Create(Category category)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId && !manga.IsDeleted);
+            _context.Categories.Add(category);
 
-            if (manga == null) return NotFound();
-
-            manga.Categories.Add(category);
-
-            return NoContent();
+            return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(Guid mangaId, Guid id, Category input)
+        public IActionResult Update(Guid id, Category input)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId && !manga.IsDeleted);
-
-            if (manga == null) return NotFound();
-
-            var category = manga.Categories.SingleOrDefault(category => category.Id == id);
+            var category = _context.Categories.SingleOrDefault(category => category.Id == id);
 
             if (category == null) return NotFound();
 
@@ -73,11 +58,7 @@ namespace Lidas.MangaApi.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(Guid mangaId, Guid id)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId && !manga.IsDeleted);
-
-            if (manga == null) return NotFound();
-
-            var category = manga.Categories.SingleOrDefault(category => category.Id == id);
+            var category = _context.Categories.SingleOrDefault(category => category.Id == id && !category.IsDeleted);
 
             if (category == null) return NotFound();
 
@@ -85,5 +66,7 @@ namespace Lidas.MangaApi.Controllers
 
             return NoContent();
         }
+
+
     }
 }

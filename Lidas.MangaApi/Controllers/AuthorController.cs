@@ -2,10 +2,11 @@
 using Lidas.MangaApi.Persist;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace Lidas.MangaApi.Controllers
 {
-    [Route("api/manga/{mangaId}/author")]
+    [Route("api/author")]
     [ApiController]
     public class AuthorController : ControllerBase
     {
@@ -16,25 +17,17 @@ namespace Lidas.MangaApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll(Guid mangaId)
+        public IActionResult GetAll()
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => !manga.IsDeleted && manga.Id == mangaId);
-
-            if(manga == null) return NotFound();
-
-            var authors = manga.Authors;
+            var authors = _context.Authors.Where(author => !author.IsDeleted).ToList();
 
             return Ok(authors);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(Guid mangaId, Guid id)
+        public IActionResult GetById(Guid id)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => !manga.IsDeleted && manga.Id == mangaId);
-
-            if (manga == null) return NotFound();
-
-            var author = manga.Authors.Where(author => author.Id == id && !author.IsDeleted);
+            var author = _context.Authors.SingleOrDefault(author => !author.IsDeleted && author.Id == id);
 
             if (author == null) return NotFound();
 
@@ -42,25 +35,17 @@ namespace Lidas.MangaApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Guid mangaId, Author author)
+        public IActionResult Create(Author author)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId && !manga.IsDeleted);
+            _context.Authors.Add(author);
 
-            if (manga == null) return NotFound();
-
-            manga.Authors.Add(author);
-
-            return NoContent();
+            return CreatedAtAction(nameof(GetById), new { id = author.Id }, author);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(Guid mangaId, Guid id, Author input)
+        public IActionResult Update(Guid id, Author input)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId);
-
-            if (manga == null) return NotFound();
-
-            var author = manga.Authors.SingleOrDefault(author => author.Id == id);
+            var author = _context.Authors.SingleOrDefault(author => author.Id == id);
 
             if (author == null) return NotFound();
 
@@ -70,17 +55,29 @@ namespace Lidas.MangaApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(Guid mangaId, Guid id)
+        public IActionResult Delete(Guid id)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId);
-
-            if (manga == null) return NotFound();
-
-            var author = manga.Authors.SingleOrDefault(author => author.Id == id && !author.IsDeleted);
+            var author = _context.Authors.SingleOrDefault(author => author.Id == id && !author.IsDeleted);
 
             if (author == null) return NotFound();
 
             author.Delete();
+
+            return NoContent();
+        }
+
+        [HttpPost("{id}/role/{roleId}")]
+        public IActionResult AddRole(Guid id, Guid roleId)
+        {
+            var author = _context.Authors.SingleOrDefault(author => author.Id == id && !author.IsDeleted);
+
+            if (author == null) return NotFound();
+
+            var role = _context.Roles.SingleOrDefault(role => role.Id == roleId && !role.IsDeleted);
+
+            if (role == null) return NotFound();
+
+            author.Roles.Add(role);
 
             return NoContent();
         }

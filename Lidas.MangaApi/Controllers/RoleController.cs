@@ -2,10 +2,11 @@
 using Lidas.MangaApi.Persist;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace Lidas.MangaApi.Controllers
 {
-    [Route("api/manga/{mangaId}/Author/{authorId}/role")]
+    [Route("api/role")]
     [ApiController]
     public class RoleController : ControllerBase
     {
@@ -17,33 +18,17 @@ namespace Lidas.MangaApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll(Guid mangaId, Guid authorId)
+        public IActionResult GetAll()
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId && !manga.IsDeleted);
-
-            if(manga == null) return NotFound();
-
-            var author = manga.Authors.SingleOrDefault(author => author.Id == authorId && !author.IsDeleted);
-
-            if(author == null) return NotFound();
-
-            var roles = author.Roles;
+            var roles = _context.Roles.Where(role => !role.IsDeleted).ToList();
 
             return Ok(roles);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(Guid mangaId, Guid authorId, Guid id)
+        public IActionResult GetById(Guid id)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId && !manga.IsDeleted);
-
-            if (manga == null) return NotFound();
-
-            var author = manga.Authors.SingleOrDefault(author => author.Id == authorId && !author.IsDeleted);
-
-            if (author == null) return NotFound();
-
-            var role = author.Roles.SingleOrDefault(role => role.Id == id && !role.IsDeleted);
+            var role = _context.Roles.Where(role => role.Id == id && !role.IsDeleted);
 
             if (role == null) return NotFound();
 
@@ -51,33 +36,16 @@ namespace Lidas.MangaApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Guid mangaId, Guid authorId, Role role)
+        public IActionResult Create(Role role)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId && !manga.IsDeleted);
-
-            if (manga == null) return NotFound();
-
-            var author = manga.Authors.SingleOrDefault(author => author.Id == authorId && !author.IsDeleted);
-
-            if (author == null) return NotFound();
-
-            author.Roles.Add(role);
-
-            return NoContent();
+            _context.Roles.Add(role);
+            return CreatedAtAction(nameof(GetById), new { id = role.Id }, role);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(Guid mangaId, Guid authorId, Guid id, Role input)
+        public IActionResult Update(Guid id, Role input)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId && !manga.IsDeleted);
-
-            if (manga == null) return NotFound();
-
-            var author = manga.Authors.SingleOrDefault(author => author.Id == authorId && !author.IsDeleted);
-
-            if (author == null) return NotFound();
-
-            var role = author.Roles.SingleOrDefault(role => role.Id == id && !role.IsDeleted);
+            var role = _context.Roles.SingleOrDefault(role => role.Id == id);
 
             if (role == null) return NotFound();
 
@@ -86,18 +54,10 @@ namespace Lidas.MangaApi.Controllers
             return NoContent();
         }
 
-        [HttpDelete]
-        public IActionResult Delete(Guid mangaId, Guid authorId, Guid id)
+        [HttpDelete("{id}")]
+        public IActionResult Delete(Guid id)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId && !manga.IsDeleted);
-
-            if (manga == null) return NotFound();
-
-            var author = manga.Authors.SingleOrDefault(author => author.Id == authorId && !author.IsDeleted);
-
-            if (author == null) return NotFound();
-
-            var role = author.Roles.SingleOrDefault(role => role.Id == id && !role.IsDeleted);
+            var role = _context.Roles.SingleOrDefault(role => role.Id == id && !role.IsDeleted);
 
             if (role == null) return NotFound();
 

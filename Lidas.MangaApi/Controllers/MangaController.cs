@@ -65,5 +65,37 @@ namespace Lidas.MangaApi.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("{id}/category/{categoryId}")]
+        public IActionResult AddCategory(Guid id, Guid categoryId)
+        {
+            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == id && !manga.IsDeleted);
+
+            if (manga == null) return NotFound();
+
+            var category = _context.Categories.SingleOrDefault(category => category.Id == categoryId && !category.IsDeleted);
+
+            if (category == null) return NotFound();
+
+            manga.Categories.Add(category);
+
+            return NoContent();
+        }
+
+        [HttpPost("{id}/author/{authorId}")]
+        public IActionResult AddAuthor(Guid id, Guid authorId)
+        {
+            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == id && !manga.IsDeleted);
+
+            if (manga == null) return NotFound();
+
+            var author = _context.Authors.SingleOrDefault(author => author.Id == authorId && !author.IsDeleted);
+
+            if (author == null) return NotFound();
+
+            manga.Authors.Add(author);
+
+            return NoContent();
+        }
     }
 }
