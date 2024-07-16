@@ -3,6 +3,7 @@ using Lidas.MangaApi.Entities;
 using Lidas.MangaApi.Models.InputModels;
 using Lidas.MangaApi.Models.ViewModels;
 using Lidas.MangaApi.Persist;
+using Lidas.MangaApi.Validators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,11 +17,13 @@ namespace Lidas.MangaApi.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
+        private readonly CategoryValidator _validator;
 
-        public CategoryController(AppDbContext context, IMapper mapper)
+        public CategoryController(AppDbContext context, IMapper mapper, CategoryValidator validator)
         {
             _context = context;
             _mapper = mapper;
+            _validator = validator;
         }
 
         [HttpGet]
@@ -54,6 +57,12 @@ namespace Lidas.MangaApi.Controllers
         [HttpPost]
         public IActionResult Create(CategoryInput input)
         {
+            // Validate
+            var result = _validator.Validate(input);
+            var errors = result.Errors.Select(error => error.ErrorMessage);
+
+            if (!result.IsValid) return BadRequest(errors);
+
             // Mapper
             var category = _mapper.Map<Category>(input);
 
@@ -67,6 +76,13 @@ namespace Lidas.MangaApi.Controllers
         [HttpPut("{id}")]
         public IActionResult Update(Guid id, CategoryInput input)
         {
+            // Validate
+            var result = _validator.Validate(input);
+            var errors = result.Errors.Select(error => error.ErrorMessage);
+
+            if (!result.IsValid) return BadRequest(errors);
+
+            // Database
             var category = _context.Categories.SingleOrDefault(category => category.Id == id);
 
             if (category == null) return NotFound();

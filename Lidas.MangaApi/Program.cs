@@ -1,5 +1,7 @@
+using FluentValidation;
 using Lidas.MangaApi.Mapper;
 using Lidas.MangaApi.Persist;
+using Lidas.MangaApi.Validators;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Text.Json.Serialization;
@@ -11,6 +13,7 @@ var connectString = builder.Configuration.GetConnectionString("LidasCs");
 //builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("LidasDb"));
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectString));
 builder.Services.AddAutoMapper(typeof(AppMapper));
+builder.Services.AddValidatorsFromAssemblyContaining<MangaValidator>();
 
 builder.Services.AddControllers()
     .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);

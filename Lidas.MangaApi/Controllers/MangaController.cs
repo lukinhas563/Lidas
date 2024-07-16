@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Lidas.MangaApi.Entities;
 using Lidas.MangaApi.Models.InputModels;
 using Lidas.MangaApi.Models.ViewModels;
 using Lidas.MangaApi.Persist;
+using Lidas.MangaApi.Validators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,10 +17,12 @@ namespace Lidas.MangaApi.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        public MangaController(AppDbContext context, IMapper mapper)
+        private readonly MangaValidator _validator;
+        public MangaController(AppDbContext context, IMapper mapper, MangaValidator validator)
         {
             _context = context;
             _mapper = mapper;
+            _validator = validator;
         }
 
         [HttpGet]
@@ -56,6 +60,12 @@ namespace Lidas.MangaApi.Controllers
         [HttpPost]
         public IActionResult Create(MangaInput input)
         {
+            // Validator
+            var result = _validator.Validate(input);
+            var errors = result.Errors.Select(error => error.ErrorMessage);
+
+            if (!result.IsValid) return BadRequest(errors);
+
             // Mapper
             var manga = _mapper.Map<Manga>(input);
 
@@ -70,6 +80,12 @@ namespace Lidas.MangaApi.Controllers
         [HttpPut("{id}")]
         public IActionResult Update(Guid id, MangaInput input)
         {
+            // Validator
+            var result = _validator.Validate(input);
+            var errors = result.Errors.Select(error => error.ErrorMessage);
+
+            if (!result.IsValid) return BadRequest(errors);
+
             var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == id);
 
             if (manga == null) return NotFound();
