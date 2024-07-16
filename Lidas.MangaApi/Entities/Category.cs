@@ -17,20 +17,20 @@ public class Category
         Mangas = new List<Manga>();
 
         IsDeleted = false;
-        CreatedAt = DateTime.Now;
-        UpdatedAt = DateTime.Now;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Update(string name)
     {
         Name = name;
 
-        UpdatedAt = DateTime.Now;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Delete()
     {
         IsDeleted = true;
-        UpdatedAt = DateTime.Now;
+        UpdatedAt = DateTime.UtcNow;
     }
 }

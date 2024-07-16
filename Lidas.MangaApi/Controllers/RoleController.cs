@@ -28,7 +28,7 @@ namespace Lidas.MangaApi.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById(Guid id)
         {
-            var role = _context.Roles.Where(role => role.Id == id && !role.IsDeleted);
+            var role = _context.Roles.SingleOrDefault(role => role.Id == id && !role.IsDeleted);
 
             if (role == null) return NotFound();
 
@@ -39,6 +39,8 @@ namespace Lidas.MangaApi.Controllers
         public IActionResult Create(Role role)
         {
             _context.Roles.Add(role);
+            _context.SaveChanges();
+
             return CreatedAtAction(nameof(GetById), new { id = role.Id }, role);
         }
 
@@ -50,6 +52,8 @@ namespace Lidas.MangaApi.Controllers
             if (role == null) return NotFound();
 
             role.Update(input.Name);
+            _context.Roles.Update(role);
+            _context.SaveChanges();
 
             return NoContent();
         }
@@ -62,6 +66,7 @@ namespace Lidas.MangaApi.Controllers
             if (role == null) return NotFound();
 
             role.Delete();
+            _context.SaveChanges();
 
             return NoContent();
         }

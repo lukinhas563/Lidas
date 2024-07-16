@@ -39,6 +39,7 @@ namespace Lidas.MangaApi.Controllers
         public IActionResult Create(Category category)
         {
             _context.Categories.Add(category);
+            _context.SaveChanges();
 
             return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
         }
@@ -52,6 +53,9 @@ namespace Lidas.MangaApi.Controllers
 
             category.Update(input.Name);
 
+            _context.Categories.Update(category);
+            _context.SaveChanges();
+
             return NoContent();
         }
 
@@ -63,10 +67,10 @@ namespace Lidas.MangaApi.Controllers
             if (category == null) return NotFound();
 
             category.Delete();
+            _context.SaveChanges();
 
             return NoContent();
         }
-
 
     }
 }

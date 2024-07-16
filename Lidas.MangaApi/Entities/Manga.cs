@@ -30,8 +30,8 @@ public class Manga
         Chapters = new List<Chapter>();
 
         IsDeleted = false;
-        CreatedAt = DateTime.Now;
-        UpdatedAt = DateTime.Now;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Update(string banner, string cover, string name, string description, DateTime release)
@@ -42,12 +42,12 @@ public class Manga
         Description = description;
         Release = release;
 
-        UpdatedAt = DateTime.Now;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Delete()
     {
         IsDeleted = true;
-        UpdatedAt = DateTime.Now;
+        UpdatedAt = DateTime.UtcNow;
     }
 }

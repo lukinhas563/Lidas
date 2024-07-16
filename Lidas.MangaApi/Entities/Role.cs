@@ -17,20 +17,20 @@ public class Role
         Authors = new List<Author>();
 
         IsDeleted = false;
-        CreatedAt = DateTime.Now;
-        UpdatedAt = DateTime.Now;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Update(string name)
     {
         Name = name;
 
-        UpdatedAt = DateTime.Now;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Delete()
     {
         IsDeleted = true;
-        UpdatedAt = DateTime.Now;
+        UpdatedAt = DateTime.UtcNow;
     }
 }

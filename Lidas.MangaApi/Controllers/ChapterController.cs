@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Lidas.MangaApi.Controllers
 {
-    [Route("api/manga/{mangaId}/chapter")]
+    [Route("api/chapter")]
     [ApiController]
     public class ChapterController : ControllerBase
     {
@@ -17,25 +17,17 @@ namespace Lidas.MangaApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll(Guid mangaId)
+        public IActionResult GetAll()
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId && !manga.IsDeleted);
-
-            if (manga == null) return NotFound();
-
-            var chapters = manga.Chapters;
+            var chapters = _context.Chapters.Where(chapter => !chapter.IsDeleted);
 
             return Ok(chapters);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(Guid mangaId, Guid id)
+        public IActionResult GetById(Guid id)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId && !manga.IsDeleted);
-
-            if (manga == null) return NotFound();
-
-            var chapter = manga.Chapters.SingleOrDefault(chapter => chapter.Id == id && !chapter.IsDeleted);
+            var chapter = _context.Chapters.SingleOrDefault(chapter => chapter.Id == id && !chapter.IsDeleted);
 
             if (chapter == null) return NotFound();
 
@@ -43,29 +35,24 @@ namespace Lidas.MangaApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Guid mangaId, Chapter chapter)
+        public IActionResult Create(Chapter chapter)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId && !manga.IsDeleted);
+            _context.Chapters.Add(chapter);
+            _context.SaveChanges();
 
-            if (manga == null) return NotFound();
-
-            manga.Chapters.Add(chapter);
-
-            return NoContent();
+            return CreatedAtAction(nameof(GetById), new { id = chapter.Id }, chapter);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(Guid mangaId, Guid id, Chapter input)
+        public IActionResult Update(Guid id, Chapter input)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId);
-
-            if (manga == null) return NotFound();
-
-            var chapter = manga.Chapters.SingleOrDefault(chapter => chapter.Id == id && !chapter.IsDeleted);
+            var chapter = _context.Chapters.SingleOrDefault(chapter => chapter.Id == id);
 
             if (chapter == null) return NotFound();
 
             chapter.Update(input.Number, input.Title);
+            _context.Chapters.Update(chapter);
+            _context.SaveChanges();
 
             return NoContent();
         }
@@ -73,15 +60,12 @@ namespace Lidas.MangaApi.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(Guid mangaId, Guid id)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == mangaId);
-
-            if (manga == null) return NotFound();
-
-            var chapter = manga.Chapters.SingleOrDefault(chapter => chapter.Id == id && !chapter.IsDeleted);
+            var chapter = _context.Chapters.SingleOrDefault(chapter => chapter.Id == id && !chapter.IsDeleted);
 
             if (chapter == null) return NotFound();
 
             chapter.Delete();
+            _context.SaveChanges();
 
             return NoContent();
         }

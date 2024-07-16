@@ -38,6 +38,7 @@ namespace Lidas.MangaApi.Controllers
         public IActionResult Create(Author author)
         {
             _context.Authors.Add(author);
+            _context.SaveChanges();
 
             return CreatedAtAction(nameof(GetById), new { id = author.Id }, author);
         }
@@ -50,6 +51,8 @@ namespace Lidas.MangaApi.Controllers
             if (author == null) return NotFound();
 
             author.Update(input.Name, input.Biography, input.Birthday);
+            _context.Authors.Update(author);
+            _context.SaveChanges();
 
             return NoContent();
         }
@@ -62,6 +65,7 @@ namespace Lidas.MangaApi.Controllers
             if (author == null) return NotFound();
 
             author.Delete();
+            _context.SaveChanges();
 
             return NoContent();
         }
@@ -78,6 +82,7 @@ namespace Lidas.MangaApi.Controllers
             if (role == null) return NotFound();
 
             author.Roles.Add(role);
+            _context.SaveChanges();
 
             return NoContent();
         }

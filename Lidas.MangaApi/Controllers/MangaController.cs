@@ -2,6 +2,7 @@
 using Lidas.MangaApi.Persist;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lidas.MangaApi.Controllers
 {
@@ -27,7 +28,9 @@ namespace Lidas.MangaApi.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById(Guid id)
         {
-            var manga = _context.Mangas.SingleOrDefault(manga =>  manga.Id == id && !manga.IsDeleted);
+            var manga = _context.Mangas
+                .Include(manga => manga.Categories)
+                .SingleOrDefault(manga =>  manga.Id == id && !manga.IsDeleted);
 
             if (manga == null) return NotFound();
 
@@ -38,6 +41,8 @@ namespace Lidas.MangaApi.Controllers
         public IActionResult Create(Manga manga)
         {
             _context.Mangas.Add(manga);
+
+            _context.SaveChanges();
 
             return CreatedAtAction(nameof(GetById), new {id = manga.Id}, manga);
         }
@@ -51,6 +56,9 @@ namespace Lidas.MangaApi.Controllers
 
             manga.Update(input.Banner, input.Cover, input.Name, input.Description, input.Release);
 
+            _context.Mangas.Update(manga);
+            _context.SaveChanges();
+
             return NoContent();
         }
 
@@ -62,6 +70,7 @@ namespace Lidas.MangaApi.Controllers
             if (manga == null) return NotFound();
 
             manga.Delete();
+            _context.SaveChanges(true);
 
             return NoContent();
         }
@@ -78,6 +87,7 @@ namespace Lidas.MangaApi.Controllers
             if (category == null) return NotFound();
 
             manga.Categories.Add(category);
+            _context.SaveChanges();
 
             return NoContent();
         }
@@ -94,6 +104,24 @@ namespace Lidas.MangaApi.Controllers
             if (author == null) return NotFound();
 
             manga.Authors.Add(author);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+
+        [HttpPost("{id}/chapter/{chapterId}")]
+        public IActionResult AddChapter(Guid id, Guid chapterId)
+        {
+            var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == id && !manga.IsDeleted);
+
+            if (manga == null) return NotFound();
+
+            var chapter = _context.Chapters.SingleOrDefault(chapter => chapter.Id == chapterId && !chapter.IsDeleted);
+
+            if (chapter == null) return NotFound();
+
+            manga.Chapters.Add(chapter);
+            _context.SaveChanges();
 
             return NoContent();
         }
