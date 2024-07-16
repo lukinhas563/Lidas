@@ -1,7 +1,11 @@
-﻿using Lidas.MangaApi.Entities;
+﻿using AutoMapper;
+using Lidas.MangaApi.Entities;
+using Lidas.MangaApi.Models.InputModels;
+using Lidas.MangaApi.Models.ViewModels;
 using Lidas.MangaApi.Persist;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 
 namespace Lidas.MangaApi.Controllers
@@ -11,33 +15,49 @@ namespace Lidas.MangaApi.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IMapper _mapper;
 
-        public CategoryController(AppDbContext context)
+        public CategoryController(AppDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
+            // Database
             var categories = _context.Categories.Where(category => !category.IsDeleted).ToList();
 
-            return Ok(categories);
+            // Mapper
+            var viewModel = _mapper.Map<List<CategoryViewList>>(categories);
+
+            return Ok(viewModel);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(Guid id)
         {
-            var category = _context.Categories.SingleOrDefault(category => category.Id == id && !category.IsDeleted);
+            // Database
+            var category = _context.Categories
+                .Include(category => category.Mangas)
+                .SingleOrDefault(category => category.Id == id && !category.IsDeleted);
 
             if (category == null) return NotFound();
 
-            return Ok(category);
+            // Mapper
+            var viewModel = _mapper.Map<CategoryView>(category);
+
+            return Ok(viewModel);
         }
 
         [HttpPost]
-        public IActionResult Create(Category category)
+        public IActionResult Create(CategoryInput input)
         {
+            // Mapper
+            var category = _mapper.Map<Category>(input);
+
+            // Database
             _context.Categories.Add(category);
             _context.SaveChanges();
 
@@ -45,7 +65,7 @@ namespace Lidas.MangaApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(Guid id, Category input)
+        public IActionResult Update(Guid id, CategoryInput input)
         {
             var category = _context.Categories.SingleOrDefault(category => category.Id == id);
 

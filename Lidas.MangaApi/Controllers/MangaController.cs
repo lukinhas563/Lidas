@@ -1,4 +1,7 @@
-﻿using Lidas.MangaApi.Entities;
+﻿using AutoMapper;
+using Lidas.MangaApi.Entities;
+using Lidas.MangaApi.Models.InputModels;
+using Lidas.MangaApi.Models.ViewModels;
 using Lidas.MangaApi.Persist;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,35 +14,52 @@ namespace Lidas.MangaApi.Controllers
     public class MangaController : ControllerBase
     {
         private readonly AppDbContext _context;
-
-        public MangaController(AppDbContext context)
+        private readonly IMapper _mapper;
+        public MangaController(AppDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            var mangas = _context.Mangas.Where(manga => !manga.IsDeleted).ToList();
+            // Database
+            var mangas = _context.Mangas
+                .Include(manga => manga.Categories)
+                .Where(manga => !manga.IsDeleted).ToList();
 
-            return Ok(mangas);
+            // Mapper
+            var viewModel = _mapper.Map<List<MangaViewList>>(mangas);
+
+            return Ok(viewModel);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(Guid id)
         {
+            // Database
             var manga = _context.Mangas
                 .Include(manga => manga.Categories)
+                .Include(manga => manga.Authors)
+                .Include(manga => manga.Chapters)
                 .SingleOrDefault(manga =>  manga.Id == id && !manga.IsDeleted);
 
             if (manga == null) return NotFound();
 
-            return Ok(manga);
+            // Mapper
+            var viewModel = _mapper.Map<MangaView>(manga);
+
+            return Ok(viewModel);
         }
 
         [HttpPost]
-        public IActionResult Create(Manga manga)
+        public IActionResult Create(MangaInput input)
         {
+            // Mapper
+            var manga = _mapper.Map<Manga>(input);
+
+            // Database
             _context.Mangas.Add(manga);
 
             _context.SaveChanges();
@@ -48,7 +68,7 @@ namespace Lidas.MangaApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(Guid id, Manga input)
+        public IActionResult Update(Guid id, MangaInput input)
         {
             var manga = _context.Mangas.SingleOrDefault(manga => manga.Id == id);
 

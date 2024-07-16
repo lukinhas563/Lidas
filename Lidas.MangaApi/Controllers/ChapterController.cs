@@ -1,4 +1,7 @@
-﻿using Lidas.MangaApi.Entities;
+﻿using AutoMapper;
+using Lidas.MangaApi.Entities;
+using Lidas.MangaApi.Models.InputModels;
+using Lidas.MangaApi.Models.ViewModels;
 using Lidas.MangaApi.Persist;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,33 +13,47 @@ namespace Lidas.MangaApi.Controllers
     public class ChapterController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IMapper _mapper;
 
-        public ChapterController(AppDbContext context)
+        public ChapterController(AppDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
+            // Database
             var chapters = _context.Chapters.Where(chapter => !chapter.IsDeleted);
 
-            return Ok(chapters);
+            // Mapper
+            var viewModel = _mapper.Map<List<ChapterView>>(chapters);
+
+            return Ok(viewModel);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(Guid id)
         {
+            // Database
             var chapter = _context.Chapters.SingleOrDefault(chapter => chapter.Id == id && !chapter.IsDeleted);
 
             if (chapter == null) return NotFound();
 
-            return Ok(chapter);
+            // Mapper
+            var viewModel = _mapper.Map<ChapterView>(chapter);
+
+            return Ok(viewModel);
         }
 
         [HttpPost]
-        public IActionResult Create(Chapter chapter)
+        public IActionResult Create(ChapterInput input)
         {
+            // Mapper
+            var chapter = _mapper.Map<Chapter>(input);
+
+            // Database
             _context.Chapters.Add(chapter);
             _context.SaveChanges();
 
@@ -44,7 +61,7 @@ namespace Lidas.MangaApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(Guid id, Chapter input)
+        public IActionResult Update(Guid id, ChapterInput input)
         {
             var chapter = _context.Chapters.SingleOrDefault(chapter => chapter.Id == id);
 
