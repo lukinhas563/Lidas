@@ -5,10 +5,12 @@ using Lidas.MangaApi.Models.InputModels;
 using Lidas.MangaApi.Models.PageModels;
 using Lidas.MangaApi.Models.ViewModels;
 using Lidas.MangaApi.Persist;
+using Lidas.MangaApi.Services;
 using Lidas.MangaApi.Validators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace Lidas.MangaApi.Controllers
 {
@@ -19,11 +21,13 @@ namespace Lidas.MangaApi.Controllers
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
         private readonly MangaValidator _validator;
-        public MangaController(AppDbContext context, IMapper mapper, MangaValidator validator)
+        private readonly ImageProvider _provider;
+        public MangaController(AppDbContext context, IMapper mapper, MangaValidator validator, ImageProvider provider)
         {
             _context = context;
             _mapper = mapper;
             _validator = validator;
+            _provider = provider;
         }
 
         /// <summary>
@@ -74,7 +78,6 @@ namespace Lidas.MangaApi.Controllers
 
             if (manga == null) return NotFound();
 
-
             // Mapper chapters
             var count = manga.Chapters.Count();
             var chapterPages = manga.Chapters.Skip(page).Take(size).ToList();
@@ -99,7 +102,7 @@ namespace Lidas.MangaApi.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult Create(MangaInput input)
+        public async Task<IActionResult> Create(MangaInput input)
         {
             // Validator
             var result = _validator.Validate(input);
@@ -107,15 +110,28 @@ namespace Lidas.MangaApi.Controllers
 
             if (!result.IsValid) return BadRequest(errors);
 
-            // Mapper
-            var manga = _mapper.Map<Manga>(input);
+            try
+            {
+                // Image upload
+                var bannerUrl = await _provider.UploadImage(input.Banner);
+                var coverUrl = await _provider.UploadImage(input.Cover);
 
-            // Database
-            _context.Mangas.Add(manga);
+                // Mapper
+                var manga = new Manga(bannerUrl, coverUrl, input.Name, input.Description, input.Release);
 
-            _context.SaveChanges();
+                // Database
+                _context.Mangas.Add(manga);
 
-            return CreatedAtAction(nameof(GetById), new {id = manga.Id}, manga);
+                _context.SaveChanges();
+
+
+                return CreatedAtAction(nameof(GetById), new { id = manga.Id }, manga);
+            } 
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
         }
 
         /// <summary>
@@ -131,7 +147,7 @@ namespace Lidas.MangaApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult Update(Guid id, MangaInput input)
+        public async Task<IActionResult> Update(Guid id, MangaInput input)
         {
             // Validator
             var result = _validator.Validate(input);
@@ -143,12 +159,25 @@ namespace Lidas.MangaApi.Controllers
 
             if (manga == null) return NotFound();
 
-            manga.Update(input.Banner, input.Cover, input.Name, input.Description, input.Release);
+            try
+            {
+                // Image upload
+                var banner = await _provider.UploadImage(input.Banner);
+                var cover = await _provider.UploadImage(input.Cover);
 
-            _context.Mangas.Update(manga);
-            _context.SaveChanges();
+                // Database
+                manga.Update(banner, cover, input.Name, input.Description, input.Release);
 
-            return NoContent();
+                _context.Mangas.Update(manga);
+                _context.SaveChanges();
+
+                return NoContent();
+            } 
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
         }
 
         /// <summary>

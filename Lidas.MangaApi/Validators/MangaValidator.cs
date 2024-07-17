@@ -5,13 +5,18 @@ namespace Lidas.MangaApi.Validators;
 
 public class MangaValidator: AbstractValidator<MangaInput>
 {
+    private readonly string[] permittedExtensions = { ".jpg", ".jpeg", ".png" };
+    private readonly string[] permittedMimeTypes = { "image/jpeg", "image/png" };
+
     public MangaValidator()
     {
         RuleFor(manga => manga.Banner)
-            .NotEmpty().WithMessage("Banner is required.");
+            .NotEmpty().WithMessage("Banner is required.")
+            .Must(IsValidImage).WithMessage("Banner must be a valid image file.");
 
         RuleFor(manga => manga.Cover)
-            .NotEmpty().WithMessage("Cover is required.");
+            .NotEmpty().WithMessage("Cover is required.")
+            .Must(IsValidImage).WithMessage("Cover must be a valid image file."); ;
 
         RuleFor(manga => manga.Name)
             .NotEmpty().WithMessage("Name is required.")
@@ -26,5 +31,15 @@ public class MangaValidator: AbstractValidator<MangaInput>
         RuleFor(manga => manga.Release)
             .NotEmpty().WithMessage("Release is required.");
 
+    }
+
+    private bool IsValidImage(IFormFile file)
+    {
+        if (file == null) return false;
+
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        var mimeType = file.ContentType.ToLowerInvariant();
+
+        return permittedExtensions.Contains(extension) && permittedMimeTypes.Contains(mimeType);
     }
 }
