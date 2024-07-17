@@ -1,4 +1,5 @@
 ﻿using Lidas.MangaApi.Entities;
+using Lidas.MangaApi.Models.PageModels;
 
 namespace Lidas.MangaApi.Models.ViewModels;
 
@@ -12,7 +13,7 @@ public class MangaView
     public DateTime Release { get; set; }
     public List<CategoryViewList> Categories { get; set; }
     public List<AuthorViewList> Authors { get; set; }
-    public List<ChapterView> Chapters { get; set; }
+    public PageView<ChapterView> Chapters { get; set; }
 
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

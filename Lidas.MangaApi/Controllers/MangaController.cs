@@ -2,6 +2,7 @@
 using FluentValidation;
 using Lidas.MangaApi.Entities;
 using Lidas.MangaApi.Models.InputModels;
+using Lidas.MangaApi.Models.PageModels;
 using Lidas.MangaApi.Models.ViewModels;
 using Lidas.MangaApi.Persist;
 using Lidas.MangaApi.Validators;
@@ -28,34 +29,41 @@ namespace Lidas.MangaApi.Controllers
         /// <summary>
         /// Get all available manga
         /// </summary>
+        /// <param name="page">Page number</param>
+        /// <param name="size">Page size</param>
         /// <returns>Manga colletion</returns>
         /// <response code="200">Success</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAll()
+        public IActionResult GetAll([FromQuery] int page = 0, [FromQuery] int size = 10)
         {
             // Database
+            var count = _context.Mangas.Count();
+
             var mangas = _context.Mangas
                 .Include(manga => manga.Categories)
-                .Where(manga => !manga.IsDeleted).ToList();
+                .Where(manga => !manga.IsDeleted).Skip(page).Take(size).ToList();
 
             // Mapper
             var viewModel = _mapper.Map<List<MangaViewList>>(mangas);
 
-            return Ok(viewModel);
+            // Pagination
+            var pageView = new PageView<MangaViewList>(page, size, count, viewModel);
+
+            return Ok(pageView);
         }
 
         /// <summary>
         /// Get one available manga
         /// </summary>
         /// <param name="id">Manga identifier</param>
+        /// <param name="page">Page number</param>
+        /// <param name="size">page size</param>
         /// <returns>Manga object data</returns>
-        /// <response code="200">Success</response>
-        /// <response code="404">Not Found</response>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetById(Guid id)
+        public IActionResult GetById(Guid id, [FromQuery] int page = 0, [FromQuery] int size = 10)
         {
             // Database
             var manga = _context.Mangas
@@ -66,8 +74,17 @@ namespace Lidas.MangaApi.Controllers
 
             if (manga == null) return NotFound();
 
-            // Mapper
+
+            // Mapper chapters
+            var count = manga.Chapters.Count();
+            var chapterPages = manga.Chapters.Skip(page).Take(size).ToList();
+
+            var chapterView = _mapper.Map<List<ChapterView>>(manga.Chapters);
+            var chapterPageView = new PageView<ChapterView>(page, size, count, chapterView);
+
+            // Mapper Manga
             var viewModel = _mapper.Map<MangaView>(manga);
+            viewModel.Chapters = chapterPageView;
 
             return Ok(viewModel);
         }

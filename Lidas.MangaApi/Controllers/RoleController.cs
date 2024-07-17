@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Lidas.MangaApi.Entities;
 using Lidas.MangaApi.Models.InputModels;
+using Lidas.MangaApi.Models.PageModels;
 using Lidas.MangaApi.Models.ViewModels;
 using Lidas.MangaApi.Persist;
 using Lidas.MangaApi.Validators;
@@ -29,32 +30,40 @@ namespace Lidas.MangaApi.Controllers
         /// <summary>
         /// Get all available roles
         /// </summary>
+        /// <param name="page">Page number</param>
+        /// <param name="size">Page size</param>
         /// <returns>Role collection</returns>
         /// <response code="200">Success</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAll()
+        public IActionResult GetAll([FromQuery] int page = 0, [FromQuery] int size = 10)
         {
             // Database
+            var count = _context.Roles.Count();
             var roles = _context.Roles.Where(role => !role.IsDeleted).ToList();
 
             // Mapper
             var viewModel = _mapper.Map<List<RoleViewList>>(roles);
 
-            return Ok(viewModel);
+            // Pagination
+            var pageView = new PageView<RoleViewList>(page, size, count, viewModel);
+
+            return Ok(pageView);
         }
 
         /// <summary>
         /// Get one available role
         /// </summary>
         /// <param name="id">Role identifier</param>
+        /// <param name="page">Page number</param>
+        /// <param name="size">Page size</param>
         /// <returns>Role object data</returns>
         /// <response code="200">Success</response>
         /// <response code="404">Not Found</response>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetById(Guid id)
+        public IActionResult GetById(Guid id, [FromQuery] int page = 0, [FromQuery] int size = 10)
         {
             // Database
             var role = _context.Roles
@@ -63,8 +72,16 @@ namespace Lidas.MangaApi.Controllers
 
             if (role == null) return NotFound();
 
-            // Mapper
+            // Mapper Authors
+            var count = role.Authors.Count();
+            var authorPage = role.Authors.Skip(page).Take(size).ToList();
+
+            var authorView = _mapper.Map<List<AuthorViewList>>(authorPage);
+            var authorPageView = new PageView<AuthorViewList>(page, size, count, authorView);
+
+            // Mapper Roles
             var viewModel = _mapper.Map<RoleView>(role);
+            viewModel.Authors = authorPageView;
 
             return Ok(viewModel);
         }

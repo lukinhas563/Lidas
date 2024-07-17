@@ -10,10 +10,10 @@ public class AppMapper: Profile
     public AppMapper()
     {
         // Views
-        CreateMap<Manga, MangaView>();
+        CreateMap<Manga, MangaView>().ForMember(dest => dest.Chapters, opt => opt.Ignore());
         CreateMap<Manga, MangaViewList>();
 
-        CreateMap<Category, CategoryView>();
+        CreateMap<Category, CategoryView>().ForMember(dest => dest.Mangas, opt => opt.Ignore());
         CreateMap<Category, CategoryViewList>();
 
         CreateMap<Author, AuthorView>();
@@ -21,7 +21,7 @@ public class AppMapper: Profile
 
         CreateMap<Chapter, ChapterView>();
 
-        CreateMap<Role, RoleView>();
+        CreateMap<Role, RoleView>().ForMember(dest => dest.Authors, opt => opt.Ignore());
         CreateMap<Role, RoleViewList>();
 
         // Inputs

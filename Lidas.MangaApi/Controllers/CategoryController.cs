@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Lidas.MangaApi.Entities;
 using Lidas.MangaApi.Models.InputModels;
+using Lidas.MangaApi.Models.PageModels;
 using Lidas.MangaApi.Models.ViewModels;
 using Lidas.MangaApi.Persist;
 using Lidas.MangaApi.Validators;
@@ -29,32 +30,40 @@ namespace Lidas.MangaApi.Controllers
         /// <summary>
         /// Get all available categories
         /// </summary>
+        /// <param name="page">Page number</param>
+        /// <param name="size">Page size</param>
         /// <returns>Category collection</returns>
         /// <response code="200">Success</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAll()
+        public IActionResult GetAll([FromQuery] int page = 0, [FromQuery] int size = 10)
         {
             // Database
+            var count = _context.Categories.Count();
             var categories = _context.Categories.Where(category => !category.IsDeleted).ToList();
 
             // Mapper
             var viewModel = _mapper.Map<List<CategoryViewList>>(categories);
+
+            // Pagination
+            var pageView = new PageView<CategoryViewList>(page, size, count, viewModel);
             
-            return Ok(viewModel);
+            return Ok(pageView);
         }
 
         /// <summary>
         /// Get one available category
         /// </summary>
         /// <param name="id">Category identifier</param>
+        /// <param name="page">Page number</param>
+        /// <param name="size">Page size</param>
         /// <returns>Category object data</returns>
         /// <response code="200">Success</response>
         /// <response code="404">Not Found</response>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetById(Guid id)
+        public IActionResult GetById(Guid id, [FromQuery] int page = 0, [FromQuery] int size = 10)
         {
             // Database
             var category = _context.Categories
@@ -63,8 +72,16 @@ namespace Lidas.MangaApi.Controllers
 
             if (category == null) return NotFound();
 
-            // Mapper
+            // Mapper Manga
+            var count = category.Mangas.Count();
+            var mangaPages = category.Mangas.Skip(page).Take(size).ToList();
+
+            var mangaView = _mapper.Map<List<MangaViewList>>(mangaPages);
+            var mangaPageView = new PageView<MangaViewList>(page, size, count, mangaView);
+
+            // Mapper Category
             var viewModel = _mapper.Map<CategoryView>(category);
+            viewModel.Mangas = mangaPageView;
 
             return Ok(viewModel);
         }

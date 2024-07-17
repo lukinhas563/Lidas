@@ -713,6 +713,7 @@ obj/
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
-appsettings.json
+# ASP. config
+appsettings*.json
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio,aspnetcore,csharp,dotnetcore

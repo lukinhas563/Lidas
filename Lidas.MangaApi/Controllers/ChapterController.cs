@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Lidas.MangaApi.Entities;
 using Lidas.MangaApi.Models.InputModels;
+using Lidas.MangaApi.Models.PageModels;
 using Lidas.MangaApi.Models.ViewModels;
 using Lidas.MangaApi.Persist;
 using Lidas.MangaApi.Validators;
@@ -30,15 +31,19 @@ namespace Lidas.MangaApi.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAll()
+        public IActionResult GetAll([FromQuery] int page = 0, [FromQuery] int size = 10)
         {
             // Database
+            var count = _context.Chapters.Count();
             var chapters = _context.Chapters.Where(chapter => !chapter.IsDeleted);
 
             // Mapper
             var viewModel = _mapper.Map<List<ChapterView>>(chapters);
 
-            return Ok(viewModel);
+            // Pagination
+            var pageView = new PageView<ChapterView>(page, size, count, viewModel);
+
+            return Ok(pageView);
         }
 
         /// <summary>
