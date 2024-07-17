@@ -26,7 +26,13 @@ namespace Lidas.MangaApi.Controllers
             _validator = validator;
         }
 
+        /// <summary>
+        /// Get all available categories
+        /// </summary>
+        /// <returns>Category collection</returns>
+        /// <response code="200">Success</response>
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetAll()
         {
             // Database
@@ -34,11 +40,20 @@ namespace Lidas.MangaApi.Controllers
 
             // Mapper
             var viewModel = _mapper.Map<List<CategoryViewList>>(categories);
-
+            
             return Ok(viewModel);
         }
 
+        /// <summary>
+        /// Get one available category
+        /// </summary>
+        /// <param name="id">Category identifier</param>
+        /// <returns>Category object data</returns>
+        /// <response code="200">Success</response>
+        /// <response code="404">Not Found</response>
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetById(Guid id)
         {
             // Database
@@ -54,7 +69,16 @@ namespace Lidas.MangaApi.Controllers
             return Ok(viewModel);
         }
 
+        /// <summary>
+        /// Register a new category
+        /// </summary>
+        /// <param name="input">Category data</param>
+        /// <returns>Category object data</returns>
+        /// <response code="201">Success</response>
+        /// <response code="400">Bad Request</response>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Create(CategoryInput input)
         {
             // Validate
@@ -73,7 +97,19 @@ namespace Lidas.MangaApi.Controllers
             return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
         }
 
+        /// <summary>
+        /// Upadte a category
+        /// </summary>
+        /// <param name="id">Category identifier</param>
+        /// <param name="input">Category data</param>
+        /// <returns>No return</returns>
+        /// <response code="204">Success</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="400">Bad Request</response>
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Update(Guid id, CategoryInput input)
         {
             // Validate
@@ -95,8 +131,15 @@ namespace Lidas.MangaApi.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Delete a category
+        /// </summary>
+        /// <param name="id">Category identifier</param>
+        /// <returns>No return</returns>
+        /// <reponse code="204">Success</reponse>
+        /// <reponse code="404">Not Found</reponse>
         [HttpDelete("{id}")]
-        public IActionResult Delete(Guid mangaId, Guid id)
+        public IActionResult Delete(Guid id)
         {
             var category = _context.Categories.SingleOrDefault(category => category.Id == id && !category.IsDeleted);
 

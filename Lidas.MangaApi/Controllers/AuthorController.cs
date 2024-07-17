@@ -25,7 +25,13 @@ namespace Lidas.MangaApi.Controllers
             _validator = validator;
         }
 
+        /// <summary>
+        /// Get all available author
+        /// </summary>
+        /// <returns>Author collection</returns>
+        /// <response code="200">Success</response>
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetAll()
         {
             // Database
@@ -37,7 +43,16 @@ namespace Lidas.MangaApi.Controllers
             return Ok(viewModel);
         }
 
+        /// <summary>
+        /// Get one available author
+        /// </summary>
+        /// <param name="id">Author identifier</param>
+        /// <returns>Author object data</returns>
+        /// <response code="200">Success</response>
+        /// <response code="404">Not Found</response>
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetById(Guid id)
         {
             // Database
@@ -54,7 +69,16 @@ namespace Lidas.MangaApi.Controllers
             return Ok(viewModel);
         }
 
+        /// <summary>
+        /// Register a new author
+        /// </summary>
+        /// <param name="input">Author data</param>
+        /// <returns>Author object data</returns>
+        /// <response code="201">Success</response>
+        /// <response code="400">Bad Request</response>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Create(AuthorInput input)
         {
             // Validate
@@ -73,7 +97,19 @@ namespace Lidas.MangaApi.Controllers
             return CreatedAtAction(nameof(GetById), new { id = author.Id }, author);
         }
 
+        /// <summary>
+        /// Update a author
+        /// </summary>
+        /// <param name="id">Author identifier</param>
+        /// <param name="input">Author data</param>
+        /// <returns>No return</returns>
+        /// <response code="204">Success</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="400">Bad Request</response>
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Update(Guid id, AuthorInput input)
         {
             // Validate
@@ -94,7 +130,16 @@ namespace Lidas.MangaApi.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Delete a auhtor
+        /// </summary>
+        /// <param name="id">Author identifier</param>
+        /// <returns>No return</returns>
+        /// <response code="204">Success</response>
+        /// <response code="404">Not Found</response>
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult Delete(Guid id)
         {
             var author = _context.Authors.SingleOrDefault(author => author.Id == id && !author.IsDeleted);
@@ -107,7 +152,17 @@ namespace Lidas.MangaApi.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Add role to a author
+        /// </summary>
+        /// <param name="id">Author identifier</param>
+        /// <param name="roleId">Role identifier</param>
+        /// <returns>No return</returns>
+        /// <response code="204">Success</response>
+        /// <response code="404">Not Found</response>
         [HttpPost("{id}/role/{roleId}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult AddRole(Guid id, Guid roleId)
         {
             var author = _context.Authors.SingleOrDefault(author => author.Id == id && !author.IsDeleted);

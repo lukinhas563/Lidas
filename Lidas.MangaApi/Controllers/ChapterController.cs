@@ -23,7 +23,13 @@ namespace Lidas.MangaApi.Controllers
             _validator = validator;
         }
 
+        /// <summary>
+        /// Get all available chapters
+        /// </summary>
+        /// <returns>Chapter collection</returns>
+        /// <response code="200">Success</response>
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetAll()
         {
             // Database
@@ -35,6 +41,12 @@ namespace Lidas.MangaApi.Controllers
             return Ok(viewModel);
         }
 
+        /// <summary>
+        /// Get one available chapter
+        /// </summary>
+        /// <param name="id">Chapter identifier</param>
+        /// <returns>Chapter object data</returns>
+        /// <response code="200">Success</response>
         [HttpGet("{id}")]
         public IActionResult GetById(Guid id)
         {
@@ -49,7 +61,16 @@ namespace Lidas.MangaApi.Controllers
             return Ok(viewModel);
         }
 
+        /// <summary>
+        /// Register a new chapter
+        /// </summary>
+        /// <param name="input">Chapter data</param>
+        /// <returns>Chapter object data</returns>
+        /// <response code="201">Success</response>
+        /// <response code="404">Bad Request</response>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Create(ChapterInput input)
         {
             // Validator
@@ -68,7 +89,19 @@ namespace Lidas.MangaApi.Controllers
             return CreatedAtAction(nameof(GetById), new { id = chapter.Id }, chapter);
         }
 
+        /// <summary>
+        /// Update a chapter
+        /// </summary>
+        /// <param name="id">Chapter identifier</param>
+        /// <param name="input">Chapter data</param>
+        /// <returns>No return</returns>
+        /// <response code="204">Success</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="400">Bad Request</response>
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Update(Guid id, ChapterInput input)
         {
             // Validator
@@ -89,8 +122,17 @@ namespace Lidas.MangaApi.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Delete a chapter
+        /// </summary>
+        /// <param name="id">Chapter identifier</param>
+        /// <returns>No return</returns>
+        /// <response code="204">Success</response>
+        /// <response code="404">Not Found</response>
         [HttpDelete("{id}")]
-        public IActionResult Delete(Guid mangaId, Guid id)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult Delete(Guid id)
         {
             var chapter = _context.Chapters.SingleOrDefault(chapter => chapter.Id == id && !chapter.IsDeleted);
 
