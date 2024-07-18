@@ -12,7 +12,7 @@ builder.Services.AddAutoMapper(typeof(AppMapper));
 
 // Token settings
 var tokenSettings = builder.Configuration.GetSection("JWT");
-builder.Services.Configure<TokenSettings>(tokenSettings);
+builder.Services.Configure<TokenSettings>(tokenSettings); 
 builder.Services.AddSingleton<TokenService>();
 
 builder.Services.AddControllers();

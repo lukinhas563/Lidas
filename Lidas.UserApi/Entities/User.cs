@@ -33,7 +33,7 @@ public class User
 
     public void Update(string name, string lastName, string userName, string email, string password)
     {
-        Name = name;
+        Name = name; 
         LastName = lastName;
         UserName = userName;
         Email = email;

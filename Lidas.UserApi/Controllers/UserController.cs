@@ -58,7 +58,7 @@ namespace Lidas.UserApi.Controllers
         {
 
             // Mapper
-            var user = _mapper.Map<User>(input);
+            var user = _mapper.Map<User>(input); 
 
             // Initial role
             var role = _context.Roles.SingleOrDefault(role => role.Name == "Basic" && !role.IsDeleted);

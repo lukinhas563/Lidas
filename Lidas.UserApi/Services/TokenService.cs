@@ -33,7 +33,7 @@ public class TokenService
 
         foreach (var role in user.Role)
         {
-            claims.Add(new Claim(ClaimTypes.Role, role.Name));
+            claims.Add(new Claim(ClaimTypes.Role, role.Name)); 
         }
 
         var tokenDescriptor = new SecurityTokenDescriptor

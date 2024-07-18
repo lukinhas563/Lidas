@@ -10,7 +10,7 @@ namespace Lidas.UserApi.Controllers
 {
     [Route("api/role")]
     [ApiController]
-    public class RoleController : ControllerBase
+    public class RoleController : ControllerBase 
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;

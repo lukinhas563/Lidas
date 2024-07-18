@@ -8,7 +8,7 @@ public class Role
     public bool IsDeleted { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
-
+     
     public Role(string name)
     {
         Id = Guid.NewGuid();

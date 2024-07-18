@@ -11,7 +11,7 @@ public class AppMapper: Profile
     {
         // View
         CreateMap<User, UserView>();
-        CreateMap<User, UserViewList>();
+        CreateMap<User, UserViewList>(); 
 
         CreateMap<Role, RoleView>();
 
