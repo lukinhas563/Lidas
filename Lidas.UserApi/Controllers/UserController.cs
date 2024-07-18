@@ -1,4 +1,7 @@
-﻿using Lidas.UserApi.Entities;
+﻿using AutoMapper;
+using Lidas.UserApi.Entities;
+using Lidas.UserApi.Models.Input;
+using Lidas.UserApi.Models.View;
 using Lidas.UserApi.Persist;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,41 +13,57 @@ namespace Lidas.UserApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IMapper _mapper;
 
-        public UserController(AppDbContext context)
+        public UserController(AppDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
+            // Database
             var users = _context.Users.Where(user => !user.IsDeleted).ToList();
 
-            return Ok(users);
+            // Mapper
+            var viewModel = _mapper.Map<List<UserViewList>>(users);
+
+            return Ok(viewModel);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(Guid id)
         {
+            // Database
             var user = _context.Users.SingleOrDefault(user => user.Id == id && !user.IsDeleted);
 
             if (user == null) return NotFound();
 
-            return Ok(user);
+            // Mapper
+            var viewModel = _mapper.Map<UserView>(user);
+
+            return Ok(viewModel);
         }
 
         [HttpPost("register")]
-        public IActionResult Register(User input)
+        public IActionResult Register(UserInput input)
         {
-            _context.Users.Add(input);
+            // Mapper
+            var user = _mapper.Map<User>(input);
+
+            // Database
+            _context.Users.Add(user);
             _context.SaveChanges();
 
-            return CreatedAtAction(nameof(GetById), new { id = input.Id }, input);
+            var viewModel = _mapper.Map<UserView>(user);
+
+            return CreatedAtAction(nameof(GetById), new { id = user.Id }, viewModel);
         }
 
         [HttpPost("login")]
-        public IActionResult Login(User input)
+        public IActionResult Login(UserInput input)
         {
             var user = _context.Users.SingleOrDefault(user => !user.IsDeleted && user.UserName == input.UserName);
 
@@ -58,6 +77,21 @@ namespace Lidas.UserApi.Controllers
             {
                 return BadRequest("Invalid");
             }
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult Update(Guid id, UserInput input)
+        {
+            var user = _context.Users.SingleOrDefault(user => user.Id == id && !user.IsDeleted);
+
+            if (input == null) return NotFound();
+
+            user.Update(input.Name, input.LastName, input.UserName, input.Email, input.Password);
+
+            _context.Users.Update(user);
+            _context.SaveChanges();
+
+            return NoContent();
         }
     }
 }
