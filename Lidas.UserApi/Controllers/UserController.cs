@@ -3,8 +3,10 @@ using Lidas.UserApi.Entities;
 using Lidas.UserApi.Models.Input;
 using Lidas.UserApi.Models.View;
 using Lidas.UserApi.Persist;
+using Lidas.UserApi.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lidas.UserApi.Controllers
 {
@@ -14,11 +16,13 @@ namespace Lidas.UserApi.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
+        private readonly TokenService _token;
 
-        public UserController(AppDbContext context, IMapper mapper)
+        public UserController(AppDbContext context, IMapper mapper, TokenService token)
         {
             _context = context;
             _mapper = mapper;
+            _token = token;
         }
 
         [HttpGet]
@@ -37,7 +41,9 @@ namespace Lidas.UserApi.Controllers
         public IActionResult GetById(Guid id)
         {
             // Database
-            var user = _context.Users.SingleOrDefault(user => user.Id == id && !user.IsDeleted);
+            var user = _context.Users
+                .Include(user => user.Role)
+                .SingleOrDefault(user => user.Id == id && !user.IsDeleted);
 
             if (user == null) return NotFound();
 
@@ -50,8 +56,16 @@ namespace Lidas.UserApi.Controllers
         [HttpPost("register")]
         public IActionResult Register(UserInput input)
         {
+
             // Mapper
             var user = _mapper.Map<User>(input);
+
+            // Initial role
+            var role = _context.Roles.SingleOrDefault(role => role.Name == "Basic" && !role.IsDeleted);
+
+            if (role == null) return NotFound();
+
+            user.Role.Add(role);
 
             // Database
             _context.Users.Add(user);
@@ -65,13 +79,17 @@ namespace Lidas.UserApi.Controllers
         [HttpPost("login")]
         public IActionResult Login(UserInput input)
         {
-            var user = _context.Users.SingleOrDefault(user => !user.IsDeleted && user.UserName == input.UserName);
+            var user = _context.Users
+                .Include(user => user.Role)
+                .SingleOrDefault(user => !user.IsDeleted && user.UserName == input.UserName);
 
             if (user == null) return NotFound();
 
             if (user.Password ==  input.Password)
             {
-                return Ok("Valid");
+                var token = _token.GenerateToken(user);
+
+                return Ok(token);
             } 
             else
             {
