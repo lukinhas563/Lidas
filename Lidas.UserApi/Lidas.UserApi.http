@@ -1,0 +1,6 @@
+@Lidas.UserApi_HostAddress = http://localhost:5291
+
+GET {{Lidas.UserApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
