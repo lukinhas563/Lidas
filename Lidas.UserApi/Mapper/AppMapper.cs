@@ -14,6 +14,7 @@ public class AppMapper: Profile
         CreateMap<User, UserViewList>(); 
 
         CreateMap<Role, RoleView>();
+        CreateMap<Role, RoleViewList>();
 
         // Input
         CreateMap<UserInput, User>();

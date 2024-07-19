@@ -3,8 +3,10 @@ using Lidas.UserApi.Entities;
 using Lidas.UserApi.Models.Input;
 using Lidas.UserApi.Models.View;
 using Lidas.UserApi.Persist;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lidas.UserApi.Controllers
 {
@@ -27,7 +29,7 @@ namespace Lidas.UserApi.Controllers
             var roles = _context.Roles.Where(role => !role.IsDeleted);
 
             // Mapper
-            var viewModel = _mapper.Map<List<RoleView>>(roles);
+            var viewModel = _mapper.Map<List<RoleViewList>>(roles);
 
             return Ok(viewModel);
         }
@@ -36,7 +38,9 @@ namespace Lidas.UserApi.Controllers
         public IActionResult GetById(Guid id)
         {
             // Databse
-            var role = _context.Roles.SingleOrDefault(role => role.Id == id && !role.IsDeleted);
+            var role = _context.Roles
+                .Include(role => role.Users)
+                .SingleOrDefault(role => role.Id == id && !role.IsDeleted);
 
             if (role == null) return NotFound();
 

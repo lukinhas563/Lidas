@@ -4,6 +4,7 @@ public class Role
 {
     public Guid Id { get; set; }
     public string Name { get; set; }
+    public List<User> Users { get; set; }
 
     public bool IsDeleted { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -13,6 +14,7 @@ public class Role
     {
         Id = Guid.NewGuid();
         Name = name;
+        Users = new List<User>();
 
         IsDeleted = false;
         CreatedAt = DateTime.UtcNow;

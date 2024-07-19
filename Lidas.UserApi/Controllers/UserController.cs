@@ -17,12 +17,14 @@ namespace Lidas.UserApi.Controllers
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
         private readonly TokenService _token;
+        private readonly CryptographyService _cryptography;
 
-        public UserController(AppDbContext context, IMapper mapper, TokenService token)
+        public UserController(AppDbContext context, IMapper mapper, TokenService token, CryptographyService cryptography)
         {
             _context = context;
             _mapper = mapper;
             _token = token;
+            _cryptography = cryptography;
         }
 
         [HttpGet]
@@ -42,7 +44,7 @@ namespace Lidas.UserApi.Controllers
         {
             // Database
             var user = _context.Users
-                .Include(user => user.Role)
+                .Include(user => user.Roles)
                 .SingleOrDefault(user => user.Id == id && !user.IsDeleted);
 
             if (user == null) return NotFound();
@@ -56,16 +58,17 @@ namespace Lidas.UserApi.Controllers
         [HttpPost("register")]
         public IActionResult Register(UserInput input)
         {
-
-            // Mapper
-            var user = _mapper.Map<User>(input); 
-
             // Initial role
             var role = _context.Roles.SingleOrDefault(role => role.Name == "Basic" && !role.IsDeleted);
 
             if (role == null) return NotFound();
 
-            user.Role.Add(role);
+            // Mapper
+            var hashPassword = _cryptography.Hash(input.Password);
+            input.Password = hashPassword;
+
+            var user = _mapper.Map<User>(input);
+            user.Roles.Add(role);
 
             // Database
             _context.Users.Add(user);
@@ -79,22 +82,22 @@ namespace Lidas.UserApi.Controllers
         [HttpPost("login")]
         public IActionResult Login(UserInput input)
         {
+            // Database
             var user = _context.Users
-                .Include(user => user.Role)
+                .Include(user => user.Roles)
                 .SingleOrDefault(user => !user.IsDeleted && user.UserName == input.UserName);
 
-            if (user == null) return NotFound();
+            if (user == null) return NotFound("Username or password is not correct.");
 
-            if (user.Password ==  input.Password)
-            {
-                var token = _token.GenerateToken(user);
+            // Cryptography
+            var result = _cryptography.Verify(user.Password, input.Password);
 
-                return Ok(token);
-            } 
-            else
-            {
-                return BadRequest("Invalid");
-            }
+            if (!result) return BadRequest("Username or password is not correct.");
+
+            var token = _token.GenerateToken(user);
+
+            return Ok(token);
+      
         }
 
         [HttpPut("{id}")]

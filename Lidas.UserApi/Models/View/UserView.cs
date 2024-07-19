@@ -7,7 +7,7 @@ public class UserView
     public string LastName { get; set; }
     public string UserName { get; set; }
     public string Email { get; set; }
-    public List<RoleView> Role { get; set; }
+    public List<RoleViewList> Roles { get; set; }
 
     public bool IsEmailConfirmed { get; set; }
     public DateTime CreatedAt { get; set; }
