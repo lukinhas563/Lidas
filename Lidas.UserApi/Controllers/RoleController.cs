@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Lidas.UserApi.Controllers
 {
@@ -57,13 +58,31 @@ namespace Lidas.UserApi.Controllers
             var role = _mapper.Map<Role>(input);
 
             // Database
-            _context.Roles.Add(role);
-            _context.SaveChanges();
+            try
+            {
+                _context.Roles.Add(role);
+                _context.SaveChanges();
 
-            // Viewr
-            var viewModel = _mapper.Map<RoleView>(role);
+                // Viewr
+                var viewModel = _mapper.Map<RoleView>(role);
 
-            return CreatedAtAction(nameof(GetById), new {id = viewModel.Id}, viewModel);
+                return CreatedAtAction(nameof(GetById), new { id = viewModel.Id }, viewModel);
+            } 
+            catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx)
+            {
+                if (pgEx.ConstraintName.Contains("IX_Roles_Name"))
+                {
+                    return BadRequest("Role already exists.");
+                }
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
         }
 
         [HttpPut("{id}")]
@@ -73,12 +92,32 @@ namespace Lidas.UserApi.Controllers
 
             if (role == null) return NotFound();
 
-            role.Update(input.Name);
+            // Database
+            try
+            {
+                role.Update(input.Name);
 
-            _context.Roles.Update(role);
-            _context.SaveChanges();
+                _context.Roles.Update(role);
+                _context.SaveChanges();
 
-            return NoContent();
+                return NoContent();
+
+            } 
+            catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx)
+            {
+                if (pgEx.ConstraintName.Contains("IX_Roles_Name"))
+                {
+                    return BadRequest("Role already exists.");
+                }
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            } 
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
         }
 
         [HttpDelete("{id}")]

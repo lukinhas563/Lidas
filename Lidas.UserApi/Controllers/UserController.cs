@@ -9,6 +9,8 @@ using Lidas.UserApi.Validators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using System.Collections.ObjectModel;
 
 namespace Lidas.UserApi.Controllers
 {
@@ -22,7 +24,11 @@ namespace Lidas.UserApi.Controllers
         private readonly CryptographyService _cryptography;
         private readonly UserValidator _validator;
 
-        public UserController(AppDbContext context, IMapper mapper, TokenService token, CryptographyService cryptography, UserValidator validator)
+        public UserController(AppDbContext context,
+            IMapper mapper,
+            TokenService token,
+            CryptographyService cryptography,
+            UserValidator validator)
         {
             _context = context;
             _mapper = mapper;
@@ -31,36 +37,8 @@ namespace Lidas.UserApi.Controllers
             _validator = validator;
         }
 
-        [HttpGet]
-        public IActionResult GetAll()
-        {
-            // Database
-            var users = _context.Users.Where(user => !user.IsDeleted).ToList();
-
-            // Mapper
-            var viewModel = _mapper.Map<List<UserViewList>>(users);
-
-            return Ok(viewModel);
-        }
-
-        [HttpGet("{id}")]
-        public IActionResult GetById(Guid id)
-        {
-            // Database
-            var user = _context.Users
-                .Include(user => user.Role)
-                .SingleOrDefault(user => user.Id == id && !user.IsDeleted);
-
-            if (user == null) return NotFound();
-
-            // Mapper
-            var viewModel = _mapper.Map<UserView>(user);
-
-            return Ok(viewModel);
-        }
-
         [HttpPost("register")]
-        public IActionResult Register(UserInput input)
+        public async Task<IActionResult> Register(UserInput input)
         {
             // Validator
             var result = _validator.Register.Validate(input);
@@ -81,12 +59,41 @@ namespace Lidas.UserApi.Controllers
             user.Role = role;
 
             // Database
-            _context.Users.Add(user);
-            _context.SaveChanges();
+            try
+            {
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
 
-            var viewModel = _mapper.Map<UserView>(user);
+                var viewModel = _mapper.Map<UserView>(user);
 
-            return CreatedAtAction(nameof(GetById), new { id = user.Id }, viewModel);
+                return Ok(viewModel);
+            } 
+            catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx)
+            {
+
+                var err = new List<string>();
+
+                if (pgEx.ConstraintName.Contains("IX_Users_UserName"))
+                {
+                    err.Add("Username already exists.");
+                }
+
+                if (pgEx.ConstraintName.Contains("IX_Users_Email"))
+                {
+                    err.Add("Email already exists.");
+                }
+
+                Console.WriteLine(err);
+
+                return BadRequest(err);
+            } 
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+
         }
 
         [HttpPost("login")]
@@ -124,9 +131,51 @@ namespace Lidas.UserApi.Controllers
 
             if (input == null) return NotFound();
 
-            user.Update(input.Name, input.LastName, input.UserName, input.Email, input.Password);
+            // Database
+            try
+            {
+                user.Update(input.Name, input.LastName, input.UserName, input.Email, input.Password);
 
-            _context.Users.Update(user);
+                _context.Users.Update(user);
+                _context.SaveChanges();
+
+                return NoContent();
+            } 
+            catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx)
+            {
+                var err = new List<string>();
+
+                if (pgEx.ConstraintName.Contains("IX_Users_UserName"))
+                {
+                    err.Add("Username already exists.");
+                }
+
+                if (pgEx.ConstraintName.Contains("IX_Users_Email"))
+                {
+                    err.Add("Email already exists.");
+                }
+
+                Console.WriteLine(err);
+
+                return BadRequest(err);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+        }
+
+        [HttpPost("{id}")]
+        public IActionResult Confirmation(Guid id)
+        {
+            var user = _context.Users.SingleOrDefault(user => user.Id == id && !user.IsDeleted);
+
+            if (user == null) return NotFound();
+
+            user.IsEmailConfirmed = true;
+
             _context.SaveChanges();
 
             return NoContent();

@@ -13,14 +13,16 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("UserDb"));
+//builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("UserDb"));
+var connectString = builder.Configuration.GetConnectionString("UserDb");
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectString));
 builder.Services.AddAutoMapper(typeof(AppMapper));
 builder.Services.AddValidatorsFromAssemblyContaining<LoginValidator>();
 builder.Services.AddScoped<UserValidator>();
 
 // Token settings
 var tokenSettings = builder.Configuration.GetSection("JWT");
-builder.Services.Configure<TokenSettings>(tokenSettings); 
+builder.Services.Configure<TokenSettings>(tokenSettings);
 builder.Services.AddSingleton<TokenService>();
 
 // Hash

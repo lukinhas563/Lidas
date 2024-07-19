@@ -22,6 +22,8 @@ public class AppDbContext: DbContext
 
             entity.HasKey(role => role.Id);
 
+            entity.HasIndex(role => role.Name).IsUnique();
+
             entity.Property(role => role.Name).IsRequired().HasMaxLength(200);
 
             entity.HasMany(role => role.Users)
@@ -31,6 +33,9 @@ public class AppDbContext: DbContext
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(user => user.Id);
+
+            entity.HasIndex(user => user.UserName).IsUnique();
+            entity.HasIndex(user => user.Email).IsUnique();
 
             entity.Property(user => user.Name).IsRequired().HasMaxLength(200);
             entity.Property(user => user.LastName).IsRequired().HasMaxLength(200);
