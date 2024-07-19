@@ -8,7 +8,7 @@ public class User
     public string UserName { get; set; }
     public string Email { get; set; }
     public string Password { get; set; }
-    public List<Role> Roles { get; set; }
+    public Role Role { get; set; }
 
     public bool IsDeleted { get; set; }
     public bool IsEmailConfirmed { get; set; }
@@ -23,7 +23,7 @@ public class User
         UserName = userName;
         Email = email;
         Password = password;
-        Roles = new List<Role>();
+        Role = null;
 
         IsDeleted = false;
         IsEmailConfirmed = false;

@@ -29,12 +29,8 @@ public class TokenService
             new Claim("Id", user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.UserName),
             new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role.Name)
         };
-
-        foreach (var role in user.Roles)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role.Name));
-        }
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {

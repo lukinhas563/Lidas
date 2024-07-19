@@ -4,6 +4,8 @@ using Lidas.UserApi.Models.Input;
 using Lidas.UserApi.Models.View;
 using Lidas.UserApi.Persist;
 using Lidas.UserApi.Services;
+using Lidas.UserApi.Validations;
+using Lidas.UserApi.Validators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,13 +20,15 @@ namespace Lidas.UserApi.Controllers
         private readonly IMapper _mapper;
         private readonly TokenService _token;
         private readonly CryptographyService _cryptography;
+        private readonly UserValidator _validator;
 
-        public UserController(AppDbContext context, IMapper mapper, TokenService token, CryptographyService cryptography)
+        public UserController(AppDbContext context, IMapper mapper, TokenService token, CryptographyService cryptography, UserValidator validator)
         {
             _context = context;
             _mapper = mapper;
             _token = token;
             _cryptography = cryptography;
+            _validator = validator;
         }
 
         [HttpGet]
@@ -44,7 +48,7 @@ namespace Lidas.UserApi.Controllers
         {
             // Database
             var user = _context.Users
-                .Include(user => user.Roles)
+                .Include(user => user.Role)
                 .SingleOrDefault(user => user.Id == id && !user.IsDeleted);
 
             if (user == null) return NotFound();
@@ -58,6 +62,12 @@ namespace Lidas.UserApi.Controllers
         [HttpPost("register")]
         public IActionResult Register(UserInput input)
         {
+            // Validator
+            var result = _validator.Register.Validate(input);
+            var errors = result.Errors.Select(error => error.ErrorMessage);
+
+            if (!result.IsValid) return BadRequest(errors);
+
             // Initial role
             var role = _context.Roles.SingleOrDefault(role => role.Name == "Basic" && !role.IsDeleted);
 
@@ -68,7 +78,7 @@ namespace Lidas.UserApi.Controllers
             input.Password = hashPassword;
 
             var user = _mapper.Map<User>(input);
-            user.Roles.Add(role);
+            user.Role = role;
 
             // Database
             _context.Users.Add(user);
@@ -80,19 +90,26 @@ namespace Lidas.UserApi.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login(UserInput input)
+        public IActionResult Login(LoginInput input)
         {
+            // Validator
+            var result = _validator.Login.Validate(input);
+            var errors = result.Errors.Select(error => error.ErrorMessage);
+
+            if (!result.IsValid) return BadRequest(errors);
+
             // Database
             var user = _context.Users
-                .Include(user => user.Roles)
-                .SingleOrDefault(user => !user.IsDeleted && user.UserName == input.UserName);
+                .Include(user => user.Role)
+                .SingleOrDefault(user => user.UserName == input.UserName && !user.IsDeleted);
 
-            if (user == null) return NotFound("Username or password is not correct.");
+            if (user == null) return BadRequest("Username or password is not correct.");
+            if (!user.IsEmailConfirmed) return BadRequest("Email was not confirmed.");
 
             // Cryptography
-            var result = _cryptography.Verify(user.Password, input.Password);
+            var isValid = _cryptography.Verify(user.Password, input.Password);
 
-            if (!result) return BadRequest("Username or password is not correct.");
+            if (!isValid) return BadRequest("Username or password is not correct.");
 
             var token = _token.GenerateToken(user);
 

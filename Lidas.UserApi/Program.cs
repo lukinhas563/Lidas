@@ -1,7 +1,9 @@
+using FluentValidation;
 using Lidas.UserApi.Config;
 using Lidas.UserApi.Mapper;
 using Lidas.UserApi.Persist;
 using Lidas.UserApi.Services;
+using Lidas.UserApi.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -13,6 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("UserDb"));
 builder.Services.AddAutoMapper(typeof(AppMapper));
+builder.Services.AddValidatorsFromAssemblyContaining<LoginValidator>();
+builder.Services.AddScoped<UserValidator>();
 
 // Token settings
 var tokenSettings = builder.Configuration.GetSection("JWT");
