@@ -3,6 +3,7 @@ using Lidas.UserApi.Entities;
 using Lidas.UserApi.Models.Input;
 using Lidas.UserApi.Models.View;
 using Lidas.UserApi.Persist;
+using Lidas.UserApi.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,10 +18,12 @@ namespace Lidas.UserApi.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        public RoleController(AppDbContext context, IMapper mapper)
+        private readonly RoleValidator _validator;
+        public RoleController(AppDbContext context, IMapper mapper, RoleValidator validator)
         {
             _context = context;
             _mapper = mapper;
+            _validator = validator;
         }
 
         [HttpGet]
@@ -52,8 +55,14 @@ namespace Lidas.UserApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(RoleInput input)
+        public async Task<IActionResult> Create(RoleInput input)
         {
+            // Validate
+            var result = await _validator.ValidateAsync(input);
+            var errors = result.Errors.Select(error => error.ErrorMessage);
+
+            if (!result.IsValid) return BadRequest(errors);
+
             // Mapper
             var role = _mapper.Map<Role>(input);
 
@@ -63,19 +72,10 @@ namespace Lidas.UserApi.Controllers
                 _context.Roles.Add(role);
                 _context.SaveChanges();
 
-                // Viewr
+                // View
                 var viewModel = _mapper.Map<RoleView>(role);
 
                 return CreatedAtAction(nameof(GetById), new { id = viewModel.Id }, viewModel);
-            } 
-            catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx)
-            {
-                if (pgEx.ConstraintName.Contains("IX_Roles_Name"))
-                {
-                    return BadRequest("Role already exists.");
-                }
-
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
             catch (Exception ex)
             {
@@ -86,13 +86,19 @@ namespace Lidas.UserApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(Guid id, RoleInput input)
+        public async Task<IActionResult> Update(Guid id, RoleInput input)
         {
+            // Validate
+            var result = await _validator.ValidateAsync(input);
+            var errors = result.Errors.Select(error => error.ErrorMessage);
+
+            if (!result.IsValid) return BadRequest(errors);
+
+            // Database
             var role = _context.Roles.SingleOrDefault(role => role.Id == id);
 
             if (role == null) return NotFound();
 
-            // Database
             try
             {
                 role.Update(input.Name);
@@ -102,15 +108,6 @@ namespace Lidas.UserApi.Controllers
 
                 return NoContent();
 
-            } 
-            catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx)
-            {
-                if (pgEx.ConstraintName.Contains("IX_Roles_Name"))
-                {
-                    return BadRequest("Role already exists.");
-                }
-
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             } 
             catch (Exception ex)
             {

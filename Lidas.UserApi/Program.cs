@@ -28,6 +28,11 @@ builder.Services.AddSingleton<TokenService>();
 // Hash
 builder.Services.AddSingleton<CryptographyService>();
 
+// Email settings
+var emailSettings = builder.Configuration.GetSection("SMTP");
+builder.Services.Configure<EmailSettings>(emailSettings);
+builder.Services.AddSingleton<EmailService>();
+
 // Authentication
 var key = Encoding.ASCII.GetBytes(tokenSettings.Key);
 builder.Services.AddAuthentication(options =>

@@ -23,25 +23,28 @@ namespace Lidas.UserApi.Controllers
         private readonly TokenService _token;
         private readonly CryptographyService _cryptography;
         private readonly UserValidator _validator;
+        private readonly EmailService _email;
 
         public UserController(AppDbContext context,
             IMapper mapper,
             TokenService token,
             CryptographyService cryptography,
-            UserValidator validator)
+            UserValidator validator,
+            EmailService email)
         {
             _context = context;
             _mapper = mapper;
             _token = token;
             _cryptography = cryptography;
             _validator = validator;
+            _email = email;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserInput input)
         {
             // Validator
-            var result = _validator.Register.Validate(input);
+            var result = await _validator.Register.ValidateAsync(input);
             var errors = result.Errors.Select(error => error.ErrorMessage);
 
             if (!result.IsValid) return BadRequest(errors);
@@ -58,6 +61,11 @@ namespace Lidas.UserApi.Controllers
             var user = _mapper.Map<User>(input);
             user.Role = role;
 
+            // Email confirm
+            var wasSended = _email.SendEmail(user.Name, user.Email, "Confirm your email", "Confirm your email");
+
+            if (!wasSended) return BadRequest("Email is not valided.");
+
             // Database
             try
             {
@@ -67,25 +75,6 @@ namespace Lidas.UserApi.Controllers
                 var viewModel = _mapper.Map<UserView>(user);
 
                 return Ok(viewModel);
-            } 
-            catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx)
-            {
-
-                var err = new List<string>();
-
-                if (pgEx.ConstraintName.Contains("IX_Users_UserName"))
-                {
-                    err.Add("Username already exists.");
-                }
-
-                if (pgEx.ConstraintName.Contains("IX_Users_Email"))
-                {
-                    err.Add("Email already exists.");
-                }
-
-                Console.WriteLine(err);
-
-                return BadRequest(err);
             } 
             catch (Exception ex)
             {
@@ -125,13 +114,19 @@ namespace Lidas.UserApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(Guid id, UserInput input)
+        public async Task<IActionResult> Update(Guid id, UserInput input)
         {
+            // Validator
+            var result = await _validator.Register.ValidateAsync(input);
+            var errors = result.Errors.Select(error => error.ErrorMessage);
+
+            if (!result.IsValid) return BadRequest(errors);
+
+            // Database
             var user = _context.Users.SingleOrDefault(user => user.Id == id && !user.IsDeleted);
 
             if (input == null) return NotFound();
 
-            // Database
             try
             {
                 user.Update(input.Name, input.LastName, input.UserName, input.Email, input.Password);
@@ -141,24 +136,6 @@ namespace Lidas.UserApi.Controllers
 
                 return NoContent();
             } 
-            catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx)
-            {
-                var err = new List<string>();
-
-                if (pgEx.ConstraintName.Contains("IX_Users_UserName"))
-                {
-                    err.Add("Username already exists.");
-                }
-
-                if (pgEx.ConstraintName.Contains("IX_Users_Email"))
-                {
-                    err.Add("Email already exists.");
-                }
-
-                Console.WriteLine(err);
-
-                return BadRequest(err);
-            }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
@@ -180,5 +157,6 @@ namespace Lidas.UserApi.Controllers
 
             return NoContent();
         }
+
     }
 }
