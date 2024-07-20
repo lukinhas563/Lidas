@@ -40,7 +40,20 @@ namespace Lidas.UserApi.Controllers
             _email = email;
         }
 
+        /// <summary>
+        /// Register a new user
+        /// </summary>
+        /// <param name="input">User data</param>
+        /// <returns>Object user data</returns>
+        /// <response code="200">Success</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="500">Internal server error</response>
         [HttpPost("register")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Register(UserInput input)
         {
             // Validator
@@ -88,7 +101,16 @@ namespace Lidas.UserApi.Controllers
 
         }
 
+        /// <summary>
+        /// Log in a user
+        /// </summary>
+        /// <param name="input">User connect data</param>
+        /// <returns>Object token</returns>
+        /// <response code="200">Success</response>
+        /// <response code="400">Bad Request</response>
         [HttpPost("login")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Login(LoginInput input)
         {
             // Validator
@@ -116,7 +138,19 @@ namespace Lidas.UserApi.Controllers
       
         }
 
+        /// <summary>
+        /// Update a user
+        /// </summary>
+        /// <param name="id">User identifier</param>
+        /// <param name="input">User data</param>
+        /// <returns>No return</returns>
+        /// <response code="204">Success</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="500">Internal Server Error</response>
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Update(Guid id, UserInput input)
         {
             // Validator
@@ -147,7 +181,16 @@ namespace Lidas.UserApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Confirm an e-mail
+        /// </summary>
+        /// <param name="token">Token data</param>
+        /// <returns>No return</returns>
+        /// <response data="204">Success</response>
+        /// <response data="400">Bad Request</response>
         [HttpPost("confirm-email")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Confirmation(string token)
         {
             var validUser = await _token.ValidateEmailToken(token);
@@ -161,7 +204,18 @@ namespace Lidas.UserApi.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Send a password link reset
+        /// </summary>
+        /// <param name="emailInput">Email data</param>
+        /// <returns>No return</returns>
+        /// <response data="204">Success</response>
+        /// <response data="400">Bad Request</response>
+        /// <response data="500">Internal Server Error</response>
         [HttpPost("request-password-reset")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult RequestPasswordReset(EmailInput emailInput)
         {
             // Validator
@@ -192,7 +246,17 @@ namespace Lidas.UserApi.Controllers
 
         }
 
+        /// <summary>
+        /// Confirm a token and reset user's password
+        /// </summary>
+        /// <param name="passwordInput">Password data</param>
+        /// <param name="token">Token data</param>
+        /// <returns>No return</returns>
+        /// <response data="204">Success</response>
+        /// <response data="400">Bad Request</response>
         [HttpPost("password-reset")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ResetPassword(PasswordInput passwordInput, string token)
         {
             // Validator

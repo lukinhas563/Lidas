@@ -26,12 +26,18 @@ namespace Lidas.UserApi.Controllers
             _validator = validator;
         }
 
+        /// <summary>
+        /// Get all available roles
+        /// </summary>
+        /// <returns>Role object data list</returns>
+        /// <response data="200">Success</response>
         [HttpGet]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetAll()
         {
             // Database
-            var roles = _context.Roles.Where(role => !role.IsDeleted);
+            var roles = _context.Roles.Where(role => !role.IsDeleted).ToList();
 
             // Mapper
             var viewModel = _mapper.Map<List<RoleViewList>>(roles);
@@ -39,8 +45,17 @@ namespace Lidas.UserApi.Controllers
             return Ok(viewModel);
         }
 
+        /// <summary>
+        /// Get one available role
+        /// </summary>
+        /// <param name="id">Role identifier</param>
+        /// <returns>Role object data</returns>
+        /// <response data="200">Success</response>
+        /// <response data="404">Not Found</response>
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetById(Guid id)
         {
             // Databse
@@ -56,8 +71,19 @@ namespace Lidas.UserApi.Controllers
             return Ok(viewModel);
         }
 
+        /// <summary>
+        /// Crate a new role
+        /// </summary>
+        /// <param name="input">Role data</param>
+        /// <returns>Role object data</returns>
+        /// <response data="201">Success</response>
+        /// <response data="400">Bad Request</response>
+        /// <response data="500">Internal Server Error</response>
         [HttpPost]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Create(RoleInput input)
         {
             // Validate
@@ -88,8 +114,22 @@ namespace Lidas.UserApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Update a role
+        /// </summary>
+        /// <param name="id">Role indentifier</param>
+        /// <param name="input">Role data</param>
+        /// <returns>No return</returns>
+        /// <response data="204">Success</response>
+        /// <response data="404">Not Foundt</response>
+        /// <response data="400">Bad Request</response>
+        /// <response data="500">Internal Server Error</response>
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Update(Guid id, RoleInput input)
         {
             // Validate
@@ -121,8 +161,17 @@ namespace Lidas.UserApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Delete a role
+        /// </summary>
+        /// <param name="id">Role identifier</param>
+        /// <returns>No return</returns>
+        /// <response data="204">Success</response>
+        /// <response data="404">Not Found</response>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult Delete(Guid id)
         {
             var role = _context.Roles.SingleOrDefault(role => !role.IsDeleted && role.Id == id);
