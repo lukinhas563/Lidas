@@ -27,6 +27,7 @@ namespace Lidas.UserApi.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult GetAll()
         {
             // Database
@@ -39,6 +40,7 @@ namespace Lidas.UserApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult GetById(Guid id)
         {
             // Databse
@@ -55,6 +57,7 @@ namespace Lidas.UserApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(RoleInput input)
         {
             // Validate
@@ -86,6 +89,7 @@ namespace Lidas.UserApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(Guid id, RoleInput input)
         {
             // Validate
@@ -118,6 +122,7 @@ namespace Lidas.UserApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Delete(Guid id)
         {
             var role = _context.Roles.SingleOrDefault(role => !role.IsDeleted && role.Id == id);
