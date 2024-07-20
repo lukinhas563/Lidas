@@ -61,17 +61,20 @@ namespace Lidas.UserApi.Controllers
             var user = _mapper.Map<User>(input);
             user.Role = role;
 
-            // Email confirm
-            var wasSended = _email.SendEmail(user.Name, user.Email, "Confirm your email", "Confirm your email");
-
-            if (!wasSended) return BadRequest("Email is not valided.");
-
             // Database
             try
             {
+                // Email confirm
+                var tokenConfirmation = _token.GenerateEmailToken(user);
+                var linkConfirmation = Url.Action(nameof(Confirmation), "User", new { tokenConfirmation }, Request.Scheme);
+
+                _email.SendEmail(user.Name, user.Email, "Confirm your email", $"Click on the link to confirm your email: {linkConfirmation}");
+
+
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
 
+                // View
                 var viewModel = _mapper.Map<UserView>(user);
 
                 return Ok(viewModel);
@@ -144,14 +147,14 @@ namespace Lidas.UserApi.Controllers
             }
         }
 
-        [HttpPost("{id}")]
-        public IActionResult Confirmation(Guid id)
+        [HttpPost("confirm-email")]
+        public async Task<IActionResult> Confirmation(string token)
         {
-            var user = _context.Users.SingleOrDefault(user => user.Id == id && !user.IsDeleted);
+            var validUser = await _token.ValidateToken(token);
 
-            if (user == null) return NotFound();
+            if (validUser == null) return BadRequest();
 
-            user.IsEmailConfirmed = true;
+            validUser.IsEmailConfirmed = true;
 
             _context.SaveChanges();
 

@@ -14,7 +14,7 @@ namespace Lidas.UserApi.Services
             _settings = options.Value;
         }
 
-        public bool SendEmail(string userName, string userEmail, string subject, string content)
+        public void SendEmail(string userName, string userEmail, string subject, string content)
         {
             var message = new MimeMessage();
 
@@ -42,12 +42,10 @@ namespace Lidas.UserApi.Services
                     client.Disconnect(true);
                 }
               
-                return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
-                return false;
+                throw new Exception(ex.ToString());
             }
         }
     }

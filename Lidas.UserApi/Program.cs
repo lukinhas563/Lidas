@@ -23,7 +23,7 @@ builder.Services.AddScoped<UserValidator>();
 // Token settings
 var tokenSettings = builder.Configuration.GetSection("JWT");
 builder.Services.Configure<TokenSettings>(tokenSettings);
-builder.Services.AddSingleton<TokenService>();
+builder.Services.AddScoped<TokenService>();
 
 // Hash
 builder.Services.AddSingleton<CryptographyService>();
