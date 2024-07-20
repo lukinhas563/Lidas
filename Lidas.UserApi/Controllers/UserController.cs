@@ -70,7 +70,7 @@ namespace Lidas.UserApi.Controllers
 
                 _email.SendEmail(user.Name, user.Email, "Confirm your email", $"Click on the link to confirm your email: {linkConfirmation}");
 
-
+                // Save
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
 
@@ -150,7 +150,7 @@ namespace Lidas.UserApi.Controllers
         [HttpPost("confirm-email")]
         public async Task<IActionResult> Confirmation(string token)
         {
-            var validUser = await _token.ValidateToken(token);
+            var validUser = await _token.ValidateEmailToken(token);
 
             if (validUser == null) return BadRequest();
 
@@ -161,5 +161,55 @@ namespace Lidas.UserApi.Controllers
             return NoContent();
         }
 
+        [HttpPost("request-password-reset")]
+        public IActionResult RequestPasswordReset(EmailInput emailInput)
+        {
+            // Validator
+            var result = _validator.Email.Validate(emailInput);
+            var errors = result.Errors.Select(error => error.ErrorMessage);
+
+            if (!result.IsValid) return BadRequest(errors);
+
+            // Database
+            var user = _context.Users.SingleOrDefault(user => user.Email == emailInput.Email && !user.IsDeleted);
+
+            if (user == null) return NotFound();
+
+            // Token reset
+            try
+            {
+                var resetToken = _token.GeneratePasswordToken(user);
+                var resetLink = Url.Action(nameof(ResetPassword), "User", new { token = resetToken }, Request.Scheme);
+
+                _email.SendEmail(user.Name, user.Email, "Password Reset Request", $"Click the link to reset your password: {resetLink}");
+
+                return NoContent();
+            } 
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+
+        }
+
+        [HttpPost("password-reset")]
+        public async Task<IActionResult> ResetPassword(PasswordInput passwordInput, string token)
+        {
+            // Validator
+            var validUser = await _token.ValidadePasswordToken(token);
+
+            if (validUser == null) return BadRequest();
+
+            var result = _validator.Password.Validate(passwordInput);
+            var errors = result.Errors.Select(error => error.ErrorMessage);
+
+            if (!result.IsValid) return BadRequest(errors);
+
+            validUser.Password = _cryptography.Hash(passwordInput.Password);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+
+        }
     }
 }

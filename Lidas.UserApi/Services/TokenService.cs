@@ -72,7 +72,30 @@ public class TokenService
         return tokenHandler.WriteToken(token);
     }
 
-    public async Task<User> ValidateToken(string token)
+    public string GeneratePasswordToken(User user)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(_settings.PasswordKey);
+        var signingCredential = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+
+        var claims = new List<Claim>()
+        {
+            new Claim("Id", user.Id.ToString()),
+        };
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.Now.AddHours(8),
+            SigningCredentials = signingCredential,
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+
+        return tokenHandler.WriteToken(token);
+    }
+
+    public async Task<User> ValidateEmailToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_settings.EmailKey);
@@ -95,6 +118,34 @@ public class TokenService
             return user;
         }
         catch
+        {
+            return null;
+        }
+    }
+
+    public async Task<User> ValidadePasswordToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(_settings.PasswordKey);
+
+        try
+        {
+            var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ClockSkew = TimeSpan.Zero
+            }, out SecurityToken validatedToken);
+
+            var userId = principal.FindFirstValue("Id");
+
+            var user = await _context.Users.SingleOrDefaultAsync(user => user.Id == Guid.Parse(userId));
+
+            return user;
+        } 
+        catch (Exception ex)
         {
             return null;
         }
