@@ -7,6 +7,7 @@ using Lidas.MangaApi.Models.ViewModels;
 using Lidas.MangaApi.Persist;
 using Lidas.MangaApi.Services;
 using Lidas.MangaApi.Validators;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,7 @@ namespace Lidas.MangaApi.Controllers
         /// <returns>Manga colletion</returns>
         /// <response code="200">Success</response>
         [HttpGet]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetAll([FromQuery] int page = 0, [FromQuery] int size = 10)
         {
@@ -65,6 +67,7 @@ namespace Lidas.MangaApi.Controllers
         /// <param name="size">page size</param>
         /// <returns>Manga object data</returns>
         [HttpGet("{id}")]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetById(Guid id, [FromQuery] int page = 0, [FromQuery] int size = 10)
@@ -100,6 +103,7 @@ namespace Lidas.MangaApi.Controllers
         /// <response code="201">Success</response>
         /// <response code="400">Bad Request</response>
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create(MangaInput input)
@@ -144,6 +148,7 @@ namespace Lidas.MangaApi.Controllers
         /// <response code="404">Not Found</response>
         /// <response code="400">Bad Request</response>
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -188,6 +193,7 @@ namespace Lidas.MangaApi.Controllers
         /// <response code="204">Success</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult Delete(Guid id)
@@ -211,6 +217,7 @@ namespace Lidas.MangaApi.Controllers
         /// <response code="204">Success</response>
         /// <response code="404">Not Found</response>
         [HttpPost("{id}/category/{categoryId}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult AddCategory(Guid id, Guid categoryId)
@@ -238,6 +245,7 @@ namespace Lidas.MangaApi.Controllers
         /// <response code="204">Success</response>
         /// <response code="404">Not Found</response>
         [HttpPost("{id}/author/{authorId}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult AddAuthor(Guid id, Guid authorId)
@@ -265,6 +273,7 @@ namespace Lidas.MangaApi.Controllers
         /// <response code="204">Success</response>
         /// <response code="404">Not Found</response>
         [HttpPost("{id}/chapter/{chapterId}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult AddChapter(Guid id, Guid chapterId)

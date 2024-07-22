@@ -5,6 +5,7 @@ using Lidas.MangaApi.Models.PageModels;
 using Lidas.MangaApi.Models.ViewModels;
 using Lidas.MangaApi.Persist;
 using Lidas.MangaApi.Validators;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +36,7 @@ namespace Lidas.MangaApi.Controllers
         /// <returns>Category collection</returns>
         /// <response code="200">Success</response>
         [HttpGet]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetAll([FromQuery] int page = 0, [FromQuery] int size = 10)
         {
@@ -61,6 +63,7 @@ namespace Lidas.MangaApi.Controllers
         /// <response code="200">Success</response>
         /// <response code="404">Not Found</response>
         [HttpGet("{id}")]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetById(Guid id, [FromQuery] int page = 0, [FromQuery] int size = 10)
@@ -94,6 +97,7 @@ namespace Lidas.MangaApi.Controllers
         /// <response code="201">Success</response>
         /// <response code="400">Bad Request</response>
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Create(CategoryInput input)
@@ -124,6 +128,7 @@ namespace Lidas.MangaApi.Controllers
         /// <response code="404">Not Found</response>
         /// <response code="400">Bad Request</response>
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -156,6 +161,9 @@ namespace Lidas.MangaApi.Controllers
         /// <reponse code="204">Success</reponse>
         /// <reponse code="404">Not Found</reponse>
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult Delete(Guid id)
         {
             var category = _context.Categories.SingleOrDefault(category => category.Id == id && !category.IsDeleted);
