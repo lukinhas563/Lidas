@@ -1,0 +1,28 @@
+.container {
+  display: flex;
+  flex-direction: column;
+
+  padding: 5px 15px;
+  border-radius: 5px;
+
+  font-weight: bold;
+  font-size: x-small;
+
+  border: 2px solid var(--shadow);
+  background-color: var(--background-white);
+}
+
+.container:focus-within {
+  border: 2px solid var(--thirth-color);
+  background-color: var(--focus-background-color);
+}
+
+input {
+  width: 100%;
+
+  border: none;
+
+  outline: none;
+
+  background: none;
+}
