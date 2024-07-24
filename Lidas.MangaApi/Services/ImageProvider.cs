@@ -1,12 +1,13 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Lidas.MangaApi.Config;
+using Lidas.MangaApi.Interfaces;
 using Microsoft.Extensions.Options;
 using System.Net;
 
 namespace Lidas.MangaApi.Services;
 
-public class ImageProvider
+public class ImageProvider: IProvider
 {
     private Cloudinary _cloudinary { get; set; }
     public ImageProvider(IOptions<CloudinarySettings> options)

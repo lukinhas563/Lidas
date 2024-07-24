@@ -1,5 +1,6 @@
 ﻿using Lidas.UserApi.Config;
 using Lidas.UserApi.Entities;
+using Lidas.UserApi.Interfaces;
 using Lidas.UserApi.Persist;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -11,7 +12,7 @@ using System.Text;
 
 namespace Lidas.UserApi.Services;
 
-public class TokenService
+public class TokenService: IToken
 {
     private readonly TokenSettings _settings;
     private readonly AppDbContext _context;

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Lidas.MangaApi.Entities;
+using Lidas.MangaApi.Interfaces;
 using Lidas.MangaApi.Models.InputModels;
 using Lidas.MangaApi.Models.PageModels;
 using Lidas.MangaApi.Models.ViewModels;
@@ -22,8 +23,8 @@ namespace Lidas.MangaApi.Controllers
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
         private readonly MangaValidator _validator;
-        private readonly ImageProvider _provider;
-        public MangaController(AppDbContext context, IMapper mapper, MangaValidator validator, ImageProvider provider)
+        private readonly IProvider _provider;
+        public MangaController(AppDbContext context, IMapper mapper, MangaValidator validator, IProvider provider)
         {
             _context = context;
             _mapper = mapper;

@@ -1,5 +1,6 @@
 using FluentValidation;
 using Lidas.UserApi.Config;
+using Lidas.UserApi.Interfaces;
 using Lidas.UserApi.Mapper;
 using Lidas.UserApi.Persist;
 using Lidas.UserApi.Services;
@@ -14,25 +15,31 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+// Database
 //builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("UserDb"));
 var connectString = builder.Configuration.GetConnectionString("UserDb");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectString));
+
+// Mapper
 builder.Services.AddAutoMapper(typeof(AppMapper));
+
+// Validator
 builder.Services.AddValidatorsFromAssemblyContaining<LoginValidator>();
-builder.Services.AddScoped<UserValidator>();
+builder.Services.AddScoped<IValidatorService, Validator>();
 
 // Token settings
 var tokenSettings = builder.Configuration.GetSection("JWT");
 builder.Services.Configure<TokenSettings>(tokenSettings);
-builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<IToken, TokenService>();
 
 // Hash
-builder.Services.AddSingleton<CryptographyService>();
+builder.Services.AddScoped<ICryptography, CryptographyService>();
 
 // Email settings
 var emailSettings = builder.Configuration.GetSection("SMTP");
 builder.Services.Configure<EmailSettings>(emailSettings);
-builder.Services.AddSingleton<EmailService>();
+builder.Services.AddScoped<IEmail, EmailService>();
 
 // Cors
 string corsPolicy = "MyPolicy";

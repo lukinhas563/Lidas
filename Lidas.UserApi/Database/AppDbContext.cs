@@ -1,4 +1,5 @@
 ﻿using Lidas.UserApi.Entities;
+using Lidas.UserApi.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lidas.UserApi.Persist;

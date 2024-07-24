@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Lidas.UserApi.Entities;
+using Lidas.UserApi.Interfaces;
 using Lidas.UserApi.Models.Input;
 using Lidas.UserApi.Models.View;
 using Lidas.UserApi.Persist;
@@ -20,17 +21,17 @@ namespace Lidas.UserApi.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        private readonly TokenService _token;
-        private readonly CryptographyService _cryptography;
-        private readonly UserValidator _validator;
-        private readonly EmailService _email;
+        private readonly IToken _token;
+        private readonly ICryptography _cryptography;
+        private readonly IValidatorService _validator;
+        private readonly IEmail _email;
 
         public UserController(AppDbContext context,
             IMapper mapper,
-            TokenService token,
-            CryptographyService cryptography,
-            UserValidator validator,
-            EmailService email)
+            IToken token,
+            ICryptography cryptography,
+            IValidatorService validator,
+            IEmail email)
         {
             _context = context;
             _mapper = mapper;
@@ -275,5 +276,6 @@ namespace Lidas.UserApi.Controllers
             return NoContent();
 
         }
+
     }
 }

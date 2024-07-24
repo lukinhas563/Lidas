@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Lidas.UserApi.Entities;
+using Lidas.UserApi.Interfaces;
 using Lidas.UserApi.Models.Input;
 using Lidas.UserApi.Models.View;
 using Lidas.UserApi.Persist;
@@ -18,8 +19,8 @@ namespace Lidas.UserApi.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        private readonly RoleValidator _validator;
-        public RoleController(AppDbContext context, IMapper mapper, RoleValidator validator)
+        private readonly IValidatorService _validator;
+        public RoleController(AppDbContext context, IMapper mapper, IValidatorService validator)
         {
             _context = context;
             _mapper = mapper;
@@ -87,7 +88,7 @@ namespace Lidas.UserApi.Controllers
         public async Task<IActionResult> Create(RoleInput input)
         {
             // Validate
-            var result = await _validator.ValidateAsync(input);
+            var result = await _validator.Role.ValidateAsync(input);
             var errors = result.Errors.Select(error => error.ErrorMessage);
 
             if (!result.IsValid) return BadRequest(errors);
@@ -133,7 +134,7 @@ namespace Lidas.UserApi.Controllers
         public async Task<IActionResult> Update(Guid id, RoleInput input)
         {
             // Validate
-            var result = await _validator.ValidateAsync(input);
+            var result = await _validator.Role.ValidateAsync(input);
             var errors = result.Errors.Select(error => error.ErrorMessage);
 
             if (!result.IsValid) return BadRequest(errors);

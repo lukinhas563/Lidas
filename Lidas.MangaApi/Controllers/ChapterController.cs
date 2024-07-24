@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Lidas.MangaApi.Entities;
+using Lidas.MangaApi.Interfaces;
 using Lidas.MangaApi.Models.InputModels;
 using Lidas.MangaApi.Models.PageModels;
 using Lidas.MangaApi.Models.ViewModels;
@@ -17,8 +18,8 @@ namespace Lidas.MangaApi.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        private readonly ChapterValidator _validator;
-        public ChapterController(AppDbContext context, IMapper mapper, ChapterValidator validator)
+        private readonly IValidatorService _validator;
+        public ChapterController(AppDbContext context, IMapper mapper, IValidatorService validator)
         {
             _context = context;
             _mapper = mapper;
@@ -84,7 +85,7 @@ namespace Lidas.MangaApi.Controllers
         public IActionResult Create(ChapterInput input)
         {
             // Validator
-            var result = _validator.Validate(input);
+            var result = _validator.Chapter.Validate(input);
             var errors = result.Errors.Select(error => error.ErrorMessage);
 
             if (!result.IsValid) return BadRequest(errors);
@@ -116,7 +117,7 @@ namespace Lidas.MangaApi.Controllers
         public IActionResult Update(Guid id, ChapterInput input)
         {
             // Validator
-            var result = _validator.Validate(input);
+            var result = _validator.Chapter.Validate(input);
             var errors = result.Errors.Select(error => error.ErrorMessage);
 
             if (!result.IsValid) return BadRequest(errors);

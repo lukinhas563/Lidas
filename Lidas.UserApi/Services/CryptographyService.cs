@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+﻿using Lidas.UserApi.Interfaces;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Security.Cryptography;
 
 namespace Lidas.UserApi.Services;
 
-public class CryptographyService
+public class CryptographyService: ICryptography
 {
     private const int SALTSIZE = 128 / 8;
     private const int KEYSIZE = 256 / 8;

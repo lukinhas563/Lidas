@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Lidas.MangaApi.Entities;
+using Lidas.MangaApi.Interfaces;
 using Lidas.MangaApi.Models.InputModels;
 using Lidas.MangaApi.Models.PageModels;
 using Lidas.MangaApi.Models.ViewModels;
@@ -19,9 +20,9 @@ namespace Lidas.MangaApi.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        private readonly RoleValidator _validator;
+        private readonly IValidatorService _validator;
 
-        public RoleController(AppDbContext context, IMapper mapper, RoleValidator validator)
+        public RoleController(AppDbContext context, IMapper mapper, IValidatorService validator)
         {
             _context = context;
             _mapper = mapper;
@@ -103,7 +104,7 @@ namespace Lidas.MangaApi.Controllers
         public IActionResult Create(RoleInput input)
         {
             // Validator
-            var result = _validator.Validate(input);
+            var result = _validator.Role.Validate(input);
             var errors = result.Errors.Select(error => error.ErrorMessage);
 
             if (!result.IsValid) return BadRequest(errors);
@@ -135,7 +136,7 @@ namespace Lidas.MangaApi.Controllers
         public IActionResult Update(Guid id, RoleInput input)
         {
             // Validator
-            var result = _validator.Validate(input);
+            var result = _validator.Role.Validate(input);
             var errors = result.Errors.Select(error => error.ErrorMessage);
 
             if (!result.IsValid) return BadRequest(errors);

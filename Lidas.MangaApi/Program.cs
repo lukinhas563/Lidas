@@ -1,5 +1,6 @@
 using FluentValidation;
 using Lidas.MangaApi.Config;
+using Lidas.MangaApi.Interfaces;
 using Lidas.MangaApi.Mapper;
 using Lidas.MangaApi.Persist;
 using Lidas.MangaApi.Services;
@@ -19,12 +20,15 @@ var connectString = builder.Configuration.GetConnectionString("LidasCs");
 //builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("LidasDb"));
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectString));
 builder.Services.AddAutoMapper(typeof(AppMapper));
+
+// Validator
 builder.Services.AddValidatorsFromAssemblyContaining<MangaValidator>();
+builder.Services.AddScoped<IValidatorService, Validator>();
 
 // Provider
 var cloudinarySettings = builder.Configuration.GetSection("CloudinarySettings");
 builder.Services.Configure<CloudinarySettings>(cloudinarySettings);
-builder.Services.AddSingleton<ImageProvider>();
+builder.Services.AddScoped<IProvider, ImageProvider>();
 
 // Cors
 string corsPolicy = "MyPolicy";
