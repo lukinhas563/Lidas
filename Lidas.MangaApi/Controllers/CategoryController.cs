@@ -39,11 +39,42 @@ namespace Lidas.MangaApi.Controllers
         [HttpGet]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAll([FromQuery] int page = 0, [FromQuery] int size = 10)
+        public IActionResult GetAll
+            (
+            [FromQuery] int page = 0,
+            [FromQuery] int size = 10,
+            [FromQuery] string sortOrder = "desc",
+            [FromQuery] string name = null
+            )
         {
+            if (sortOrder != "desc" && sortOrder != "asc")
+            {
+                return BadRequest("Invalid sortOrder parameter. Use 'asc' for ascending or 'desc' for descending.");
+            }
+
             // Database
-            var count = _context.Categories.Count();
-            var categories = _context.Categories.Where(category => !category.IsDeleted).ToList();
+            var queryCount = _context.Categories.AsQueryable();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                var namePattern = $"%{name}%";
+                queryCount = queryCount.Where(category => EF.Functions.Like(category.Name, namePattern));
+            }
+
+            var count = queryCount.Count();
+
+            IQueryable<Category> query = queryCount.Where(category => !category.IsDeleted);
+
+            if (sortOrder == "asc")
+            {
+                query = query.OrderBy(category => category.CreatedAt);
+            } 
+            else
+            {
+                query = query.OrderByDescending(category => category.CreatedAt);
+            }
+
+            var categories = query.Skip(page).Take(size).ToList();
 
             // Mapper
             var viewModel = _mapper.Map<List<CategoryViewList>>(categories);

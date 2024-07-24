@@ -17,8 +17,7 @@ namespace Lidas.MangaApi.Validators
                 .MinimumLength(10).WithMessage("Biography must be at least 10 characters long.");
 
             RuleFor(author => author.Birthday)
-                .NotEmpty().WithMessage("Birthday is required.")
-                .LessThan(new DateTime()).WithMessage("Birth day must be less than now.");
+                .NotEmpty().WithMessage("Birthday is required.");
         }
     }
 }

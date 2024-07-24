@@ -39,11 +39,42 @@ namespace Lidas.MangaApi.Controllers
         [HttpGet]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAll([FromQuery] int page = 0, [FromQuery] int size = 10)
+        public IActionResult GetAll
+            (
+            [FromQuery] int page = 0,
+            [FromQuery] int size = 10,
+            [FromQuery] string sortOrder = "desc",
+            [FromQuery] string name = null
+            )
         {
+            if (sortOrder != "desc" && sortOrder != "asc")
+            {
+                return BadRequest("Invalid sortOrder parameter. Use 'asc' for ascending or 'desc' for descending.");
+            }
+
             // Database
-            var count = _context.Roles.Count();
-            var roles = _context.Roles.Where(role => !role.IsDeleted).ToList();
+            var queryCount = _context.Roles.AsQueryable();
+
+            if (!string.IsNullOrEmpty(name) )
+            {
+                var namePattern = $"%{name}%";
+                queryCount = queryCount.Where(role => EF.Functions.Like(role.Name, namePattern));
+            }
+
+            var count = queryCount.Count();
+
+            IQueryable<Role> query = queryCount.Where(role => !role.IsDeleted);
+
+            if (sortOrder == "asc")
+            {
+                query = query.OrderBy(role => role.CreatedAt);
+            } 
+            else
+            {
+                query = query.OrderByDescending(role => role.CreatedAt);
+            }
+
+            var roles = query.Skip(page).Take(size).ToList();
 
             // Mapper
             var viewModel = _mapper.Map<List<RoleViewList>>(roles);

@@ -9,6 +9,7 @@ using Lidas.MangaApi.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lidas.MangaApi.Controllers
 {
@@ -34,11 +35,42 @@ namespace Lidas.MangaApi.Controllers
         [HttpGet]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAll([FromQuery] int page = 0, [FromQuery] int size = 10)
+        public IActionResult GetAll
+            (
+            [FromQuery] int page = 0,
+            [FromQuery] int size = 10,
+            [FromQuery] string sortOrder = "desc",
+            [FromQuery] string name = null
+            )
         {
+            if (sortOrder != "desc" && sortOrder != "asc")
+            {
+                return BadRequest("Invalid sortOrder parameter. Use 'asc' for ascending or 'desc' for descending.");
+            }
+
             // Database
-            var count = _context.Chapters.Count();
-            var chapters = _context.Chapters.Where(chapter => !chapter.IsDeleted);
+            var queryCount = _context.Chapters.AsQueryable();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                var namePattern = $"%{name}%";
+                queryCount = queryCount.Where(chapter => EF.Functions.Like(chapter.Title, namePattern));
+            }
+
+            var count = queryCount.Count();
+
+            IQueryable<Chapter> query = queryCount.Where(chapter => !chapter.IsDeleted);
+
+            if (sortOrder == "asc")
+            {
+                query = query.OrderBy(chapter => chapter.CreatedAt);
+            }
+            else
+            {
+                query = query.OrderByDescending(chapter => chapter.CreatedAt);
+            }
+
+            var chapters = query.Skip(page).Take(size).ToList();
 
             // Mapper
             var viewModel = _mapper.Map<List<ChapterView>>(chapters);

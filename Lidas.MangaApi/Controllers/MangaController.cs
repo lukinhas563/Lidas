@@ -22,9 +22,15 @@ namespace Lidas.MangaApi.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        private readonly MangaValidator _validator;
+        private readonly IValidatorService _validator;
         private readonly IProvider _provider;
-        public MangaController(AppDbContext context, IMapper mapper, MangaValidator validator, IProvider provider)
+        public MangaController
+            (
+            AppDbContext context,
+            IMapper mapper,
+            IValidatorService validator,
+            IProvider provider
+            )
         {
             _context = context;
             _mapper = mapper;
@@ -42,14 +48,44 @@ namespace Lidas.MangaApi.Controllers
         [HttpGet]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAll([FromQuery] int page = 0, [FromQuery] int size = 10)
+        public IActionResult GetAll
+            (
+            [FromQuery] int page = 0,
+            [FromQuery] int size = 10, 
+            [FromQuery] string sortOrder = "desc", 
+            [FromQuery] string name = null
+            )
         {
-            // Database
-            var count = _context.Mangas.Count();
+            if (sortOrder != "desc" && sortOrder != "asc") 
+            {
+                return BadRequest("Invalid sortOrder parameter. Use 'asc' for ascending or 'desc' for descending.");
+            }
 
-            var mangas = _context.Mangas
+            // Database
+            var countQuery = _context.Mangas.AsQueryable();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                var namePattern = $"%{name}%";
+                countQuery = countQuery.Where(manga => EF.Functions.Like(manga.Name, namePattern));
+            }
+
+            var count = countQuery.Count();
+
+            IQueryable<Manga> query = countQuery
                 .Include(manga => manga.Categories)
-                .Where(manga => !manga.IsDeleted).Skip(page).Take(size).ToList();
+                .Where(manga => !manga.IsDeleted);
+
+            if (sortOrder == "asc")
+            {
+                query = query.OrderBy(manga => manga.CreatedAt);
+            } 
+            else
+            {
+                query = query.OrderByDescending(manga => manga.CreatedAt);
+            }
+
+            var mangas = query.Skip(page).Take(size).ToList();
 
             // Mapper
             var viewModel = _mapper.Map<List<MangaViewList>>(mangas);
@@ -110,7 +146,7 @@ namespace Lidas.MangaApi.Controllers
         public async Task<IActionResult> Create(MangaInput input)
         {
             // Validator
-            var result = _validator.Validate(input);
+            var result = _validator.Manga.Validate(input);
             var errors = result.Errors.Select(error => error.ErrorMessage);
 
             if (!result.IsValid) return BadRequest(errors);
@@ -156,7 +192,7 @@ namespace Lidas.MangaApi.Controllers
         public async Task<IActionResult> Update(Guid id, MangaInput input)
         {
             // Validator
-            var result = _validator.Validate(input);
+            var result = _validator.Manga.Validate(input);
             var errors = result.Errors.Select(error => error.ErrorMessage);
 
             if (!result.IsValid) return BadRequest(errors);

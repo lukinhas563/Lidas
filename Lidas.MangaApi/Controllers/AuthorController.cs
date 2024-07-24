@@ -38,11 +38,43 @@ namespace Lidas.MangaApi.Controllers
         [HttpGet]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAll([FromQuery] int page = 0, [FromQuery] int size = 10)
+        public IActionResult GetAll
+            (
+            [FromQuery] int page = 0,
+            [FromQuery] int size = 10,
+            [FromQuery] string sortOrder = "desc",
+            [FromQuery] string name = null
+            )
         {
+            if (sortOrder != "desc" && sortOrder != "asc")
+            {
+                return BadRequest("Invalid sortOrder parameter. Use 'asc' for ascending or 'desc' for descending.");
+            }
+
             // Database
-            var count = _context.Authors.Count();
-            var authors = _context.Authors.Where(author => !author.IsDeleted).ToList();
+            var queryCount = _context.Authors.AsQueryable();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                var namePattern = $"%{name}%";
+                queryCount = queryCount.Where(author => EF.Functions.Like(author.Name, namePattern));
+            }
+
+            var count = queryCount.Count();
+
+            IQueryable<Author> query = queryCount
+                .Where(author => !author.IsDeleted);
+
+            if (sortOrder == "asc")
+            {
+                query = query.OrderBy(author => author.CreatedAt);
+            }
+            else
+            {
+                query = query.OrderByDescending(author => author.CreatedAt);
+            }
+
+            var authors = query.Skip(page).Take(size).ToList();
 
             // Mapper
             var viewModel = _mapper.Map<List<AuthorViewList>>(authors);
