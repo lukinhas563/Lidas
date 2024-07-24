@@ -26,6 +26,16 @@ var cloudinarySettings = builder.Configuration.GetSection("CloudinarySettings");
 builder.Services.Configure<CloudinarySettings>(cloudinarySettings);
 builder.Services.AddSingleton<ImageProvider>();
 
+// Cors
+string corsPolicy = "MyPolicy";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: corsPolicy, policy =>
+    {
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
 // Authentication
 var token = builder.Configuration.GetSection("JWT").Get<TokenSettings>();
 var key = Encoding.ASCII.GetBytes(token.Key);
@@ -101,6 +111,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors(corsPolicy);
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

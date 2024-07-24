@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lidas.MangaApi", "Lidas.Man
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lidas.UserApi", "Lidas.UserApi\Lidas.UserApi.csproj", "{65A23281-98DE-437F-AD20-C4B9AE648D6E}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "Lidas.Web", "Lidas.Web\Lidas.Web.esproj", "{E4D9E53A-2D60-4841-8565-CDA9688D4EE6}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,12 +21,6 @@ Global
 		{65A23281-98DE-437F-AD20-C4B9AE648D6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65A23281-98DE-437F-AD20-C4B9AE648D6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65A23281-98DE-437F-AD20-C4B9AE648D6E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E4D9E53A-2D60-4841-8565-CDA9688D4EE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E4D9E53A-2D60-4841-8565-CDA9688D4EE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E4D9E53A-2D60-4841-8565-CDA9688D4EE6}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{E4D9E53A-2D60-4841-8565-CDA9688D4EE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E4D9E53A-2D60-4841-8565-CDA9688D4EE6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E4D9E53A-2D60-4841-8565-CDA9688D4EE6}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

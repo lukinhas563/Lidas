@@ -34,6 +34,16 @@ var emailSettings = builder.Configuration.GetSection("SMTP");
 builder.Services.Configure<EmailSettings>(emailSettings);
 builder.Services.AddSingleton<EmailService>();
 
+// Cors
+string corsPolicy = "MyPolicy";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: corsPolicy, policy =>
+    {
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
 // Authentication
 var token = builder.Configuration.GetSection("JWT").Get<TokenSettings>();
 var key = Encoding.ASCII.GetBytes(token.Key);
@@ -107,6 +117,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors(corsPolicy);
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

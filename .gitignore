@@ -717,3 +717,4 @@ obj/
 appsettings*.json
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio,aspnetcore,csharp,dotnetcore
+/Lidas.Web/Lidas.Web.esproj
