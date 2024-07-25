@@ -1,0 +1,17 @@
+services:
+  gatewayapi:
+    build:
+      context: ../Lidas
+      dockerfile: Lidas.GatewayApi/Dockerfile
+    ports:
+       - "5000:8080"
+
+  userapi:
+    build:
+      context: ../Lidas
+      dockerfile: Lidas.UserApi/Dockerfile
+
+  mangaapi:
+    build:
+      context: ../Lidas
+      dockerfile: Lidas.MangaApi/Dockerfile

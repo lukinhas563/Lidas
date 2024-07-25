@@ -1,0 +1,282 @@
+{
+  "GlobalConfiguration": {
+    "BaseUrl": "https://localhost:5000"
+  },
+  "Routes": [
+    /*
+    * 
+    *  User API
+    *
+    */
+    { // User - REGISTER
+      "UpstreamPathTemplate": "/gateway/user/register",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/user/register",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "userapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // User - LOGIN
+      "UpstreamPathTemplate": "/gateway/user/login",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/user/login",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "userapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // User - UPDATE
+      "UpstreamPathTemplate": "/gateway/user/{id}",
+      "UpstreamHttpMethod": [ "Put" ],
+      "DownstreamPathTemplate": "/api/user/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "userapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // User - EMAIL CONFIRMATION
+      "UpstreamPathTemplate": "/gateway/user/confirm-email",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/user/confirm-email",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "userapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // User - REQUEST PASSWORD RESET
+      "UpstreamPathTemplate": "/gateway/user/request-password-reset",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/user/request-password-reset",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "userapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // User - PASSWORD RESET
+      "UpstreamPathTemplate": "/gateway/user/password-reset",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/user/password-reset",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "userapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Role - GETALL | CREATE
+      "UpstreamPathTemplate": "/gateway/user/role",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "DownstreamPathTemplate": "/api/role",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "userapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Role - GETBYID | UPDATE | DELETE
+      "UpstreamPathTemplate": "/gateway/user/role/{id}",
+      "UpstreamHttpMethod": [ "Get", "Put", "Delete" ],
+      "DownstreamPathTemplate": "/api/role/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "userapi",
+          "Port": 8080
+        }
+      ]
+    },
+
+    /*
+    * 
+    *  Manga API
+    *
+    */
+    { // Manga - GETALL | CREATE
+      "UpstreamPathTemplate": "/gateway/manga",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "DownstreamPathTemplate": "/api/manga",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "mangaapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Manga - GETBYID | UPDATE | DELETE
+      "UpstreamPathTemplate": "/gateway/manga/{id}",
+      "UpstreamHttpMethod": [ "Get", "Put", "Delete" ],
+      "DownstreamPathTemplate": "/api/manga/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "mangaapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Manga - ADDCATEGORY
+      "UpstreamPathTemplate": "/gateway/manga/{id}/category/{categoryId}",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/manga/{id}/category/{categoryId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "mangaapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Manga - ADDAUTHOR
+      "UpstreamPathTemplate": "/gateway/manga/{id}/author/{authorId}",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/manga/{id}/author/{authorId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "mangaapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Manga - ADDCHAPTER
+      "UpstreamPathTemplate": "/gateway/manga/{id}/chapter/{chapterId}",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/manga/{id}/chapter/{chapterId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "mangaapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Category - GETALL | CREATE
+      "UpstreamPathTemplate": "/gateway/manga/category",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "DownstreamPathTemplate": "/api/category",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "mangaapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Category - GETBYID | UPDATE | DELETE
+      "UpstreamPathTemplate": "/gateway/manga/category/{id}",
+      "UpstreamHttpMethod": [ "Get", "Put", "Delete" ],
+      "DownstreamPathTemplate": "/api/category/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "mangaapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Author - GETALL | CREATE
+      "UpstreamPathTemplate": "/gateway/manga/author",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "DownstreamPathTemplate": "/api/author",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "mangaapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Author - GETBYID | UPDATE | DELETE
+      "UpstreamPathTemplate": "/gateway/manga/author/{id}",
+      "UpstreamHttpMethod": [ "Get", "Put", "Delete" ],
+      "DownstreamPathTemplate": "/api/author/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "mangaapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Author - ADDROLE
+      "UpstreamPathTemplate": "/gateway/manga/author/{id}/role/{roleId}",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/author/{id}/role/{roleId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "mangaapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Chapter - GETALL | CREATE
+      "UpstreamPathTemplate": "/gateway/manga/chapter",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "DownstreamPathTemplate": "/api/chapter",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "mangaapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Chapter - GETBYID | UPDATE | DELETE
+      "UpstreamPathTemplate": "/gateway/manga/chapter/{id}",
+      "UpstreamHttpMethod": [ "Get", "Put", "Delete" ],
+      "DownstreamPathTemplate": "/api/chapter/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "mangaapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Role - GETALL | CREATE
+      "UpstreamPathTemplate": "/gateway/manga/role",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "DownstreamPathTemplate": "/api/role",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "mangaapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Role - GETBYID | UPDATE | DELETE
+      "UpstreamPathTemplate": "/gateway/manga/role/{id}",
+      "UpstreamHttpMethod": [ "Get", "Put", "Delete" ],
+      "DownstreamPathTemplate": "/api/role/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "mangaapi",
+          "Port": 8080
+        }
+      ]
+    }
+  ]
+}
