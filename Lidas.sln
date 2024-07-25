@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lidas.GatewayApi", "Lidas.GatewayApi\Lidas.GatewayApi.csproj", "{4E15BEF3-829D-4F0B-97C2-F2967FB16217}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lidas.WishlistApi", "Lidas.WishlistApi\Lidas.WishlistApi.csproj", "{875D2843-175A-4A19-B3E0-70183CFF3119}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{4E15BEF3-829D-4F0B-97C2-F2967FB16217}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E15BEF3-829D-4F0B-97C2-F2967FB16217}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E15BEF3-829D-4F0B-97C2-F2967FB16217}.Release|Any CPU.Build.0 = Release|Any CPU
+		{875D2843-175A-4A19-B3E0-70183CFF3119}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{875D2843-175A-4A19-B3E0-70183CFF3119}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{875D2843-175A-4A19-B3E0-70183CFF3119}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{875D2843-175A-4A19-B3E0-70183CFF3119}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
