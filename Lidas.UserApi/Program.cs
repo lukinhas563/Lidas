@@ -1,15 +1,13 @@
-using FluentValidation;
+using Lidas.UserApi;
 using Lidas.UserApi.Config;
 using Lidas.UserApi.Interfaces;
 using Lidas.UserApi.Mapper;
 using Lidas.UserApi.Persist;
 using Lidas.UserApi.Services;
-using Lidas.UserApi.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,55 +23,27 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connect
 builder.Services.AddAutoMapper(typeof(AppMapper));
 
 // Validator
-builder.Services.AddValidatorsFromAssemblyContaining<LoginValidator>();
-builder.Services.AddScoped<IValidatorService, Validator>();
+builder.Services.AddValidatorsService();
 
 // Token settings
-var tokenSettings = builder.Configuration.GetSection("JWT");
-builder.Services.Configure<TokenSettings>(tokenSettings);
-builder.Services.AddScoped<IToken, TokenService>();
+builder.Services.AddTokenService(builder.Configuration);
 
 // Hash
-builder.Services.AddScoped<ICryptography, CryptographyService>();
+builder.Services.AddCryptographyService();
 
 // Email settings
-var emailSettings = builder.Configuration.GetSection("SMTP");
-builder.Services.Configure<EmailSettings>(emailSettings);
-builder.Services.AddScoped<IEmail, EmailService>();
+builder.Services.AddEmailService(builder.Configuration);
 
 // Cors
 string corsPolicy = "MyPolicy";
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: corsPolicy, policy =>
-    {
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-    });
-});
+builder.Services.AddCorsService(corsPolicy);
 
 // Authentication
-var token = builder.Configuration.GetSection("JWT").Get<TokenSettings>();
-var key = Encoding.ASCII.GetBytes(token.Key);
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-    .AddJwtBearer(options =>
-    {
-        options.RequireHttpsMetadata = false;
-        options.SaveToken = true;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
-            ValidateIssuer = false,
-            ValidateAudience = false,
-        };
-    });
+builder.Services.AddAuthenticationService(builder.Configuration);
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
