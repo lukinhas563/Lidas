@@ -1,5 +1,8 @@
-﻿using Lidas.WishlistApi.Bus;
+﻿using FluentValidation;
+using Lidas.WishlistApi.Bus;
 using Lidas.WishlistApi.Config;
+using Lidas.WishlistApi.Interfaces;
+using Lidas.WishlistApi.Validators;
 using MassTransit;
 using MassTransit.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,5 +32,12 @@ internal static class InfrastructureModule
         });
 
         return services;
+    }
+
+    public static void AddValidatorService(this IServiceCollection services)
+    {
+        services.AddValidatorsFromAssemblyContaining<WishValidator>();
+        services.AddScoped<IValidatorService, ValidatorService>();
+
     }
 }

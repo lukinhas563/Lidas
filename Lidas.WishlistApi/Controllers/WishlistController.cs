@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Lidas.WishlistApi.Database;
 using Lidas.WishlistApi.Entities;
+using Lidas.WishlistApi.Interfaces;
 using Lidas.WishlistApi.Models.Input;
 using MassTransit;
 using Microsoft.AspNetCore.Http;
@@ -14,10 +15,12 @@ namespace Lidas.WishlistApi.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        public WishlistController(AppDbContext context, IMapper mapper)
+        private readonly IValidatorService _validator;
+        public WishlistController(AppDbContext context, IMapper mapper, IValidatorService validator)
         {
             _context = context;
             _mapper = mapper;
+            _validator = validator;
         }
 
         [HttpGet]
@@ -45,6 +48,13 @@ namespace Lidas.WishlistApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(WishInput input)
         {
+            // Validator
+            var result = _validator.Wish.Validate(input);
+            var errors = result.Errors.Select(error => error.ErrorMessage);
+
+            if (!result.IsValid) return BadRequest(errors);
+
+            // Database
             var wish = _mapper.Map<Wish>(input);
 
             _context.Add(wish);
@@ -56,6 +66,13 @@ namespace Lidas.WishlistApi.Controllers
         [HttpPut("{id}")]
         public IActionResult Update(Guid id, WishInput input)
         {
+            // Validator
+            var result = _validator.Wish.Validate(input);
+            var errors = result.Errors.Select(error => error.ErrorMessage);
+
+            if (!result.IsValid) return BadRequest(errors);
+
+            // Database
             var wish = _context.Wishes.SingleOrDefault(wish => wish.Id == id);
 
             if (wish == null) return NotFound();
