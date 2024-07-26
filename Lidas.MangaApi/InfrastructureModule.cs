@@ -1,0 +1,61 @@
+﻿using FluentValidation;
+using Lidas.MangaApi.Config;
+using Lidas.MangaApi.Interfaces;
+using Lidas.MangaApi.Services;
+using Lidas.MangaApi.Validators;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
+namespace Lidas.MangaApi;
+
+internal static class InfrastructureModule
+{
+    public static void AddValidatorsService(this IServiceCollection services)
+    {
+        services.AddValidatorsFromAssemblyContaining<MangaValidator>();
+        services.AddScoped<IValidatorService, Validator>();
+    }
+
+    public static void AddProviderService(this IServiceCollection services, IConfiguration configuration)
+    {
+        var cloudinarySettings = configuration.GetSection("CloudinarySettings");
+        services.Configure<CloudinarySettings>(cloudinarySettings);
+
+        services.AddScoped<IProvider, ImageProvider>();
+    }
+
+    public static void AddCorsService(this IServiceCollection services, string corsPolicy)
+    {
+        services.AddCors(options =>
+        {
+            options.AddPolicy(name: corsPolicy, policy =>
+            {
+                policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+            });
+        });
+    }
+
+    public static void AddAuthenticationService(this IServiceCollection services, IConfiguration configuration)
+    {
+        var token = configuration.GetSection("JWT").Get<TokenSettings>();
+        var key = Encoding.ASCII.GetBytes(token.Key);
+
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =>
+        {
+            options.RequireHttpsMetadata = false;
+            options.SaveToken = true;
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+            };
+        });
+    }
+}

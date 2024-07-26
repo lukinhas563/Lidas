@@ -1,69 +1,38 @@
-using FluentValidation;
-using Lidas.MangaApi.Config;
-using Lidas.MangaApi.Interfaces;
+using Lidas.MangaApi;
 using Lidas.MangaApi.Mapper;
 using Lidas.MangaApi.Persist;
-using Lidas.MangaApi.Services;
-using Lidas.MangaApi.Validators;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
-using System.Text;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectString = builder.Configuration.GetConnectionString("LidasCs");
 //builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("LidasDb"));
+var connectString = builder.Configuration.GetConnectionString("LidasCs");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectString));
+
+// Mapper
 builder.Services.AddAutoMapper(typeof(AppMapper));
 
 // Validator
-builder.Services.AddValidatorsFromAssemblyContaining<MangaValidator>();
-builder.Services.AddScoped<IValidatorService, Validator>();
+builder.Services.AddValidatorsService();
 
 // Provider
-var cloudinarySettings = builder.Configuration.GetSection("CloudinarySettings");
-builder.Services.Configure<CloudinarySettings>(cloudinarySettings);
-builder.Services.AddScoped<IProvider, ImageProvider>();
+builder.Services.AddProviderService(builder.Configuration);
 
 // Cors
 string corsPolicy = "MyPolicy";
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: corsPolicy, policy =>
-    {
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-    });
-});
+builder.Services.AddCorsService(corsPolicy);
 
 // Authentication
-var token = builder.Configuration.GetSection("JWT").Get<TokenSettings>();
-var key = Encoding.ASCII.GetBytes(token.Key);
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
-        ValidateAudience = false,
-    };
-});
+builder.Services.AddAuthenticationService(builder.Configuration);
 
 
 builder.Services.AddControllers()
     .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
