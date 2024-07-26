@@ -17,10 +17,14 @@ builder.Services.AddAutoMapper(typeof(AppDbContext));
 // Validator
 builder.Services.AddValidatorService();
 
+// Authentication
+builder.Services.AddAuthenticationService(builder.Configuration);
+
+// Controller
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+// Swagger
+builder.Services.AddSwaggerService();
 
 // MassTransit
 //builder.Services.AddRabbitMQService(builder.Configuration);
@@ -34,6 +38,7 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -4,6 +4,7 @@ using Lidas.WishlistApi.Entities;
 using Lidas.WishlistApi.Interfaces;
 using Lidas.WishlistApi.Models.Input;
 using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,6 +25,7 @@ namespace Lidas.WishlistApi.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult GetAll()
         {
             var wishes = _context.Wishes.Where(wish => !wish.IsDeleted).ToList();
@@ -34,6 +36,7 @@ namespace Lidas.WishlistApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public IActionResult GetById(Guid id)
         {
             var wish = _context.Wishes.SingleOrDefault(wish => wish.Id == id && !wish.IsDeleted);
@@ -46,6 +49,7 @@ namespace Lidas.WishlistApi.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create(WishInput input)
         {
             // Validator
@@ -64,6 +68,7 @@ namespace Lidas.WishlistApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public IActionResult Update(Guid id, WishInput input)
         {
             // Validator
@@ -86,6 +91,7 @@ namespace Lidas.WishlistApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public IActionResult Delete(Guid id)
         {
             var wish = _context.Wishes.SingleOrDefault(wish => wish.Id == id && !wish.IsDeleted);
