@@ -10,11 +10,15 @@ services:
     build:
       context: ../Lidas
       dockerfile: Lidas.UserApi/Dockerfile
+    depends_on:
+        - rabbitmq
 
   mangaapi:
     build:
       context: ../Lidas
       dockerfile: Lidas.MangaApi/Dockerfile
+    depends_on:
+        - rabbitmq
 
   wishlistapi:
      build:
@@ -22,6 +26,8 @@ services:
        dockerfile: Lidas.WishlistApi/Dockerfile
      ports:
         - "8080:8080"
+     depends_on:
+        - rabbitmq
 
   rabbitmq:
     image: rabbitmq:3-management

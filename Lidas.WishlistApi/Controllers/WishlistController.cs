@@ -1,5 +1,8 @@
-﻿using Lidas.WishlistApi.Database;
+﻿using AutoMapper;
+using Lidas.WishlistApi.Database;
 using Lidas.WishlistApi.Entities;
+using Lidas.WishlistApi.Models.Input;
+using MassTransit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,9 +13,11 @@ namespace Lidas.WishlistApi.Controllers
     public class WishlistController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public WishlistController(AppDbContext context)
+        private readonly IMapper _mapper;
+        public WishlistController(AppDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -20,7 +25,9 @@ namespace Lidas.WishlistApi.Controllers
         {
             var wishes = _context.Wishes.Where(wish => !wish.IsDeleted).ToList();
 
-            return Ok(wishes);
+            var wishview = _mapper.Map<List<Wish>>(wishes);
+
+            return Ok(wishview);
         }
 
         [HttpGet("{id}")]
@@ -30,12 +37,16 @@ namespace Lidas.WishlistApi.Controllers
 
             if (wish == null) return NotFound();
 
-            return Ok(wish);
+            var wishView = _mapper.Map<Wish>(wish);
+
+            return Ok(wishView);
         }
 
         [HttpPost]
-        public IActionResult Create(Wish wish)
+        public async Task<IActionResult> Create(WishInput input)
         {
+            var wish = _mapper.Map<Wish>(input);
+
             _context.Add(wish);
             _context.SaveChanges();
 
@@ -43,13 +54,14 @@ namespace Lidas.WishlistApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(Guid id, Wish input)
+        public IActionResult Update(Guid id, WishInput input)
         {
             var wish = _context.Wishes.SingleOrDefault(wish => wish.Id == id);
 
             if (wish == null) return NotFound();
 
             wish.Update(input.UserId, input.MangaId);
+
             _context.Update(wish);
             _context.SaveChanges();
 

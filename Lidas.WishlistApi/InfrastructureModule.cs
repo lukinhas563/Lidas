@@ -1,4 +1,5 @@
-﻿using Lidas.WishlistApi.Config;
+﻿using Lidas.WishlistApi.Bus;
+using Lidas.WishlistApi.Config;
 using MassTransit;
 using MassTransit.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,8 @@ internal static class InfrastructureModule
 
         services.AddMassTransit(busConfigurator =>
         {
+            busConfigurator.AddConsumer<ConsumerTest>();
+
             busConfigurator.UsingRabbitMq((ctx, cfg) =>
             {
                 cfg.Host(new Uri($"amqp://{settings.Host}:{settings.Port}"), host =>
