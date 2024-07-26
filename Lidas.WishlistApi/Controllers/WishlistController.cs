@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Contracts;
 using Lidas.WishlistApi.Database;
 using Lidas.WishlistApi.Entities;
 using Lidas.WishlistApi.Interfaces;
@@ -17,11 +18,13 @@ namespace Lidas.WishlistApi.Controllers
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
         private readonly IValidatorService _validator;
-        public WishlistController(AppDbContext context, IMapper mapper, IValidatorService validator)
+        private readonly IPublishEndpoint _publish;
+        public WishlistController(AppDbContext context, IMapper mapper, IValidatorService validator, IPublishEndpoint publish)
         {
             _context = context;
             _mapper = mapper;
             _validator = validator;
+            _publish = publish;
         }
 
         [HttpGet]
@@ -37,11 +40,17 @@ namespace Lidas.WishlistApi.Controllers
 
         [HttpGet("{id}")]
         [Authorize]
-        public IActionResult GetById(Guid id)
+        public async Task<IActionResult> GetById(Guid id)
         {
             var wish = _context.Wishes.SingleOrDefault(wish => wish.Id == id && !wish.IsDeleted);
 
             if (wish == null) return NotFound();
+
+            await _publish.Publish(new MangaRequestEvent
+            {
+                Id = wish.MangaId,
+                RequestedAt = DateTime.UtcNow,
+            });
 
             var wishView = _mapper.Map<Wish>(wish);
 

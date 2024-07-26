@@ -1,7 +1,5 @@
 using Lidas.WishlistApi;
-using Lidas.WishlistApi.Config;
 using Lidas.WishlistApi.Database;
-using Lidas.WishlistApi.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,7 +25,7 @@ builder.Services.AddControllers();
 builder.Services.AddSwaggerService();
 
 // MassTransit
-//builder.Services.AddRabbitMQService(builder.Configuration);
+builder.Services.AddRabbitMQService(builder.Configuration);
 
 var app = builder.Build();
 

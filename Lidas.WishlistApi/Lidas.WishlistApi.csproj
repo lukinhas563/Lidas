@@ -30,7 +30,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Models\Page\" />
     <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Contracts\Contracts.csproj" />
   </ItemGroup>
 
 </Project>

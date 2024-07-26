@@ -1,8 +1,10 @@
 ﻿using FluentValidation;
+using Lidas.MangaApi.Bus;
 using Lidas.MangaApi.Config;
 using Lidas.MangaApi.Interfaces;
 using Lidas.MangaApi.Services;
 using Lidas.MangaApi.Validators;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -56,6 +58,29 @@ internal static class InfrastructureModule
                 ValidateIssuer = false,
                 ValidateAudience = false,
             };
+        });
+    }
+
+    public static void AddMassTransitService(this IServiceCollection services, IConfiguration configuration)
+    {
+        var settings = configuration.GetSection("MassTransitConnection").Get<MassTransitSettings>();
+
+        services.AddMassTransit(busConfigurator =>
+        {
+            busConfigurator.SetKebabCaseEndpointNameFormatter();
+
+            busConfigurator.AddConsumer<MangaRequestConsumer>();
+
+            busConfigurator.UsingRabbitMq((ctx, cfg) =>
+            {
+                cfg.Host(new Uri($"amqp://{settings.Host}:{settings.Port}"), host =>
+                {
+                    host.Username(settings.Username);
+                    host.Password(settings.Password);
+                });
+
+                cfg.ConfigureEndpoints(ctx);
+            });
         });
     }
 }

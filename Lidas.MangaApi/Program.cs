@@ -28,7 +28,10 @@ builder.Services.AddCorsService(corsPolicy);
 // Authentication
 builder.Services.AddAuthenticationService(builder.Configuration);
 
+// MassTransit
+builder.Services.AddMassTransitService(builder.Configuration);
 
+// Controller
 builder.Services.AddControllers()
     .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 

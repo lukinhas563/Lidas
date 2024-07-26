@@ -1,12 +1,10 @@
 ﻿using FluentValidation;
-using Lidas.WishlistApi.Bus;
 using Lidas.WishlistApi.Config;
 using Lidas.WishlistApi.Interfaces;
 using Lidas.WishlistApi.Validators;
 using MassTransit;
-using MassTransit.Configuration;
+using MassTransit.Transports.Fabric;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -21,7 +19,7 @@ internal static class InfrastructureModule
 
         services.AddMassTransit(busConfigurator =>
         {
-            busConfigurator.AddConsumer<ConsumerTest>();
+            busConfigurator.SetKebabCaseEndpointNameFormatter();
 
             busConfigurator.UsingRabbitMq((ctx, cfg) =>
             {
