@@ -1,13 +1,16 @@
 using Lidas.WishlistApi;
 using Lidas.WishlistApi.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 // Database
-builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("WislistDb"));
+//services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("WislistDb"));
+var connectString = builder.Configuration.GetConnectionString("WishlistDb");
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectString));
 
 // Mapper
 builder.Services.AddAutoMapper(typeof(AppDbContext));
@@ -27,6 +30,13 @@ builder.Services.AddSwaggerService();
 // MassTransit
 builder.Services.AddRabbitMQService(builder.Configuration);
 
+// Request
+builder.Services.AddRequestService();
+
+// Cors
+var corsPolicy = "MyPolicy";
+builder.Services.AddCorsPolicyService(corsPolicy);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -34,6 +44,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+app.UseCors(corsPolicy);
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

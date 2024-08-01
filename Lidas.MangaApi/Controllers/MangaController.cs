@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Contracts;
 using Lidas.MangaApi.Entities;
 using Lidas.MangaApi.Interfaces;
 using Lidas.MangaApi.Models.InputModels;
@@ -8,6 +9,7 @@ using Lidas.MangaApi.Models.ViewModels;
 using Lidas.MangaApi.Persist;
 using Lidas.MangaApi.Services;
 using Lidas.MangaApi.Validators;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,18 +26,21 @@ namespace Lidas.MangaApi.Controllers
         private readonly IMapper _mapper;
         private readonly IValidatorService _validator;
         private readonly IProvider _provider;
+        private readonly IPublishEndpoint _publish;
         public MangaController
             (
             AppDbContext context,
             IMapper mapper,
             IValidatorService validator,
-            IProvider provider
+            IProvider provider,
+            IPublishEndpoint publish
             )
         {
             _context = context;
             _mapper = mapper;
             _validator = validator;
             _provider = provider;
+            _publish = publish;
         }
 
         /// <summary>
@@ -162,9 +167,13 @@ namespace Lidas.MangaApi.Controllers
 
                 // Database
                 _context.Mangas.Add(manga);
+                await _context.SaveChangesAsync();
 
-                _context.SaveChanges();
-
+                // Publish
+                await _publish.Publish(new MangaCreateEvent
+                {
+                    MangaId = manga.Id
+                });
 
                 return CreatedAtAction(nameof(GetById), new { id = manga.Id }, manga);
             } 
@@ -327,6 +336,19 @@ namespace Lidas.MangaApi.Controllers
             _context.SaveChanges();
 
             return NoContent();
+        }
+
+        [HttpGet("list")]
+        [AllowAnonymous]
+        public IActionResult List([FromQuery] List<Guid> mangaIds)
+        {
+            var mangas = _context.Mangas
+                .Include(manga=> manga.Categories)
+                .Where(manga => mangaIds.Contains(manga.Id) && !manga.IsDeleted).ToList();
+
+            var viewModel = _mapper.Map<List<MangaViewList>>(mangas);
+
+            return Ok(viewModel);
         }
     }
 }

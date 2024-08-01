@@ -3,6 +3,7 @@ using Lidas.UserApi.Config;
 using Lidas.UserApi.Interfaces;
 using Lidas.UserApi.Services;
 using Lidas.UserApi.Validators;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -70,6 +71,27 @@ internal static class InfrastructureModule
                 ValidateIssuer = false,
                 ValidateAudience = false,
             };
+        });
+    }
+
+    public static void AddMassTransitService(this IServiceCollection services, IConfiguration configuration)
+    {
+        var settings = configuration.GetSection("MassTransitConnection").Get<MassTransitSettings>();
+
+        services.AddMassTransit(busConfigurator =>
+        {
+            busConfigurator.SetKebabCaseEndpointNameFormatter();
+
+            busConfigurator.UsingRabbitMq((ctx, cfg) =>
+            {
+                cfg.Host(new Uri($"amqp://{settings.Host}:{settings.Port}"), host =>
+                {
+                    host.Username(settings.Username);
+                    host.Password(settings.Password);
+                });
+
+                cfg.ConfigureEndpoints(ctx);
+            });
         });
     }
 }

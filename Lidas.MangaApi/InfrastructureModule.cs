@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Lidas.MangaApi.Bus;
 using Lidas.MangaApi.Config;
 using Lidas.MangaApi.Interfaces;
 using Lidas.MangaApi.Services;
@@ -68,8 +67,6 @@ internal static class InfrastructureModule
         services.AddMassTransit(busConfigurator =>
         {
             busConfigurator.SetKebabCaseEndpointNameFormatter();
-
-            busConfigurator.AddConsumer<MangaRequestConsumer>();
 
             busConfigurator.UsingRabbitMq((ctx, cfg) =>
             {

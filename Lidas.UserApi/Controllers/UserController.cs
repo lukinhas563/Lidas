@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Contracts;
 using Lidas.UserApi.Entities;
 using Lidas.UserApi.Interfaces;
 using Lidas.UserApi.Models.Input;
@@ -7,6 +8,7 @@ using Lidas.UserApi.Persist;
 using Lidas.UserApi.Services;
 using Lidas.UserApi.Validations;
 using Lidas.UserApi.Validators;
+using MassTransit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,13 +27,15 @@ namespace Lidas.UserApi.Controllers
         private readonly ICryptography _cryptography;
         private readonly IValidatorService _validator;
         private readonly IEmail _email;
+        private readonly IPublishEndpoint _publish;
 
         public UserController(AppDbContext context,
             IMapper mapper,
             IToken token,
             ICryptography cryptography,
             IValidatorService validator,
-            IEmail email)
+            IEmail email,
+            IPublishEndpoint publish)
         {
             _context = context;
             _mapper = mapper;
@@ -39,6 +43,7 @@ namespace Lidas.UserApi.Controllers
             _cryptography = cryptography;
             _validator = validator;
             _email = email;
+            _publish = publish;
         }
 
         /// <summary>
@@ -87,6 +92,12 @@ namespace Lidas.UserApi.Controllers
                 // Save
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
+
+                // Publish
+                await _publish.Publish(new UserCreateEvent
+                {
+                    UserId = user.Id
+                });
 
                 // View
                 var viewModel = _mapper.Map<UserView>(user);

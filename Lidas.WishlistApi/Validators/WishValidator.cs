@@ -4,11 +4,10 @@ using Lidas.WishlistApi.Models.Input;
 
 namespace Lidas.WishlistApi.Validators;
 
-public class WishValidator: AbstractValidator<WishInput>
+public class WishValidator: AbstractValidator<WishitemInput>
 {
     public WishValidator()
     {
-        RuleFor(wish => wish.UserId).NotEmpty();
         RuleFor(wish => wish.MangaId).NotEmpty();
     }
 }

@@ -10,9 +10,10 @@ public class AppMapper: Profile
     public AppMapper()
     {
         // View
-        CreateMap<Wish, WishView>();
+        CreateMap<Wishlist, WishlistView>();
+        CreateMap<WishItem, WishitemView>();
 
         // Input
-        CreateMap<WishInput, Wish>();
+        CreateMap<WishitemInput, WishItem>();
     }
 }

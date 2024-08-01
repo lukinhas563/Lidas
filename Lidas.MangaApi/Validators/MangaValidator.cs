@@ -25,7 +25,7 @@ public class MangaValidator: AbstractValidator<MangaInput>
 
         RuleFor(manga => manga.Description)
             .NotEmpty().WithMessage("Description is required.")
-            .MaximumLength(10).WithMessage("Description must be at least 10 characters long.")
+            .MinimumLength(10).WithMessage("Description must be at least 10 characters long.")
             .MaximumLength(500).WithMessage("Description cannot exceed 500 characters.");
 
         RuleFor(manga => manga.Release)

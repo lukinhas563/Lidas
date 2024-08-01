@@ -38,9 +38,9 @@ public class RegisterValidator: AbstractValidator<UserInput>
         RuleFor(user => user.Password)
             .NotEmpty().WithMessage("Password is required.")
             .MinimumLength(6).WithMessage("Password must be at least 6 characters long.")
-            .Equal(user => user.ConfirmPassowrd).WithMessage("Confirm password must be the same.");
+            .Equal(user => user.ConfirmPassword).WithMessage("Confirm password must be the same.");
 
-        RuleFor(user => user.ConfirmPassowrd)
+        RuleFor(user => user.ConfirmPassword)
             .NotEmpty().WithMessage("Confirm password is required.")
             .MinimumLength(6).WithMessage("Confirm password must be at least 6 characters long.")
             .Equal(user => user.Password).WithMessage("Confirm password must be the same.");

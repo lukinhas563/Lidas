@@ -1,12 +1,17 @@
 ﻿using FluentValidation;
 using Lidas.WishlistApi.Config;
+using Lidas.WishlistApi.Consumers;
+using Lidas.WishlistApi.Database;
 using Lidas.WishlistApi.Interfaces;
 using Lidas.WishlistApi.Validators;
 using MassTransit;
 using MassTransit.Transports.Fabric;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Refit;
 using System.Text;
 
 namespace Lidas.WishlistApi;
@@ -20,6 +25,9 @@ internal static class InfrastructureModule
         services.AddMassTransit(busConfigurator =>
         {
             busConfigurator.SetKebabCaseEndpointNameFormatter();
+
+            busConfigurator.AddConsumer<UserCreateConsumer>();
+            busConfigurator.AddConsumer<MangaCreateConsumer>();
 
             busConfigurator.UsingRabbitMq((ctx, cfg) =>
             {
@@ -109,4 +117,21 @@ internal static class InfrastructureModule
             options.IncludeXmlComments(xmlPath);
         });
     }
+
+    public static void AddRequestService(this IServiceCollection services)
+    {
+        services.AddRefitClient<IRequestService>().ConfigureHttpClient(c => c.BaseAddress = new Uri("http://mangaapi:8080"));
+    }
+
+    public static void AddCorsPolicyService(this IServiceCollection services, string corsPolicy)
+    {
+        services.AddCors(options =>
+        {
+            options.AddPolicy(name: corsPolicy, policy =>
+            {
+                policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+            });
+        });
+    }
+
 }
