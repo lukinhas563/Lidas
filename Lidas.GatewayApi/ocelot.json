@@ -318,6 +318,47 @@
           "Port": 8080
         }
       ]
+    },
+    /*
+    * 
+    *  Like API
+    *
+    */
+    { // Like - GETALL
+      "UpstreamPathTemplate": "/gateway/like/{userId}",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/like/{userId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "likeapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Like - POST (LIKE)
+      "UpstreamPathTemplate": "/gateway/like/{userId}/{mangaId}",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/like/{userId}/{mangaId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "likeapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Like - DELETE
+      "UpstreamPathTemplate": "/gateway/like/{userId}/{mangaId}",
+      "UpstreamHttpMethod": [ "Delete" ],
+      "DownstreamPathTemplate": "/api/like/{userId}/{mangaId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "likeapi",
+          "Port": 8080
+        }
+      ]
     }
   ]
 }
