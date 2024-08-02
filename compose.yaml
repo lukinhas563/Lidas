@@ -13,7 +13,7 @@ services:
       context: ../Lidas
       dockerfile: Lidas.UserApi/Dockerfile
     depends_on:
-        - rabbitmq
+       - rabbitmq
     networks:
        - lidas-network
 
@@ -22,7 +22,7 @@ services:
       context: ../Lidas
       dockerfile: Lidas.MangaApi/Dockerfile
     depends_on:
-        - rabbitmq
+       - rabbitmq
     networks:
        - lidas-network
 
@@ -30,10 +30,19 @@ services:
      build:
        context: ../Lidas
        dockerfile: Lidas.WishlistApi/Dockerfile
-     ports:
-        - "8080:8080"
      depends_on:
-        - rabbitmq
+       - rabbitmq
+     networks:
+       - lidas-network
+
+  likesapi:
+     build:
+       context: ../Lidas
+       dockerfile: Lidas.LikesApi/Dockerfile
+     ports:
+       - "8080:8080"
+     depends_on:
+       - rabbitmq
      networks:
        - lidas-network
 
@@ -43,7 +52,7 @@ services:
       - "15672:15672"
       - "5672:5672"
     networks:
-       - lidas-network
+      - lidas-network
 
 networks:
   lidas-network:
