@@ -12,6 +12,21 @@ namespace Lidas.WishlistApi.Database.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Wishitems",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    MangaId = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Wishitems", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Wishlists",
                 columns: table => new
                 {
@@ -27,35 +42,41 @@ namespace Lidas.WishlistApi.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Wishitems",
+                name: "WishItemWishlist",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    MangaId = table.Column<Guid>(type: "uuid", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    WishlistId = table.Column<Guid>(type: "uuid", nullable: true)
+                    WishitemsId = table.Column<Guid>(type: "uuid", nullable: false),
+                    WishlistsId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Wishitems", x => x.Id);
+                    table.PrimaryKey("PK_WishItemWishlist", x => new { x.WishitemsId, x.WishlistsId });
                     table.ForeignKey(
-                        name: "FK_Wishitems_Wishlists_WishlistId",
-                        column: x => x.WishlistId,
+                        name: "FK_WishItemWishlist_Wishitems_WishitemsId",
+                        column: x => x.WishitemsId,
+                        principalTable: "Wishitems",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_WishItemWishlist_Wishlists_WishlistsId",
+                        column: x => x.WishlistsId,
                         principalTable: "Wishlists",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Wishitems_WishlistId",
-                table: "Wishitems",
-                column: "WishlistId");
+                name: "IX_WishItemWishlist_WishlistsId",
+                table: "WishItemWishlist",
+                column: "WishlistsId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "WishItemWishlist");
+
             migrationBuilder.DropTable(
                 name: "Wishitems");
 

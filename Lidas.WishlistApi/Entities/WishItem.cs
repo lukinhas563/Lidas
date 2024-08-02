@@ -4,6 +4,7 @@ public class WishItem
 {
     public Guid Id { get; set; }
     public Guid MangaId { get; set; }
+    public List<Wishlist> Wishlists { get; set; }
 
     public bool IsDeleted { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -13,6 +14,7 @@ public class WishItem
     {
         Id = Guid.NewGuid();
         MangaId = mangaId;
+        Wishlists = new List<Wishlist>();
 
         IsDeleted = false;
         CreatedAt = DateTime.UtcNow;

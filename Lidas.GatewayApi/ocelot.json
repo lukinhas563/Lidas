@@ -277,6 +277,47 @@
           "Port": 8080
         }
       ]
+    },
+    /*
+    * 
+    *  Wishlist API
+    *
+    */
+    { // Wishlist - GETALL
+      "UpstreamPathTemplate": "/gateway/wishlist",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/wishlist",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wishlistapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Wishlist - CREATE
+      "UpstreamPathTemplate": "/gateway/wishlist/{userId}",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/wishlist/{userId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wishlistapi",
+          "Port": 8080
+        }
+      ]
+    },
+    { // Wishlist - DELETE
+      "UpstreamPathTemplate": "/gateway/wishlist/{userId}/{mangaId}",
+      "UpstreamHttpMethod": [ "Delete" ],
+      "DownstreamPathTemplate": "/api/wishlist/{userId}/{mangaId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wishlistapi",
+          "Port": 8080
+        }
+      ]
     }
   ]
 }

@@ -33,6 +33,7 @@ namespace Lidas.WishlistApi.Controllers
         }
 
         [HttpGet("{userId}")]
+        [Authorize]
         public async Task<IActionResult> GetAll(Guid userId)
         {
             var wishList = await _context.Wishlists
@@ -48,18 +49,13 @@ namespace Lidas.WishlistApi.Controllers
 
             if (!mangaIds.Any()) return Ok(mangaIds);
 
-            // Debugging
-            Console.WriteLine("Manga IDs: " + string.Join(", ", mangaIds));
-
             var mangas = await _request.GetAll(mangaIds);
-
-            // Debugging
-            Console.WriteLine("Mangas received: " + (mangas.Count > 0 ? "Not Empty" : "Empty"));
 
             return Ok(mangas);
         }
 
         [HttpPost("{userId}")]
+        [Authorize]
         public async Task<IActionResult> AddManga(Guid userId, WishitemInput input)
         {
             // Validate
@@ -83,6 +79,27 @@ namespace Lidas.WishlistApi.Controllers
 
             return NoContent();
         }
+
+        [HttpDelete("{userId}/{mangaId}")]
+        [Authorize]
+        public async Task<IActionResult> RemoveManga(Guid userId, Guid mangaId)
+        {
+            var wishList = _context.Wishlists
+                .Include(list =>  list.Wishitems)
+                .SingleOrDefault(list => list.UserId == userId && !list.IsDeleted);
+
+            if (wishList == null) return NotFound();
+
+            var wishItem = wishList.Wishitems.SingleOrDefault(item => item.MangaId == mangaId && !item.IsDeleted);
+
+            if (wishItem == null) return NotFound();
+
+            wishList.Wishitems.Remove(wishItem);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
     }
 
 }

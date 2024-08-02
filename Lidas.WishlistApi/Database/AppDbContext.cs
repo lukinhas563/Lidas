@@ -23,7 +23,7 @@ public class AppDbContext: DbContext
 
             entity.Property(list => list.UserId).IsRequired();
 
-            entity.HasMany(list => list.Wishitems).WithOne();
+            entity.HasMany(list => list.Wishitems).WithMany(item => item.Wishlists);
         });
 
         modelBuilder.Entity<WishItem>(entity =>
@@ -31,6 +31,8 @@ public class AppDbContext: DbContext
             entity.HasKey(item => item.Id);
 
             entity.Property(item => item.MangaId).IsRequired();
+
+            entity.HasMany(item => item.Wishlists).WithMany(list => list.Wishitems);
         });
     }
 }

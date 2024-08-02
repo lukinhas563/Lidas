@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Lidas.WishlistApi.Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240801191607_Initial")]
+    [Migration("20240802135454_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -43,12 +43,7 @@ namespace Lidas.WishlistApi.Database.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("WishlistId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("WishlistId");
 
                     b.ToTable("Wishitems");
                 });
@@ -76,16 +71,34 @@ namespace Lidas.WishlistApi.Database.Migrations
                     b.ToTable("Wishlists");
                 });
 
-            modelBuilder.Entity("Lidas.WishlistApi.Entities.WishItem", b =>
+            modelBuilder.Entity("WishItemWishlist", b =>
                 {
-                    b.HasOne("Lidas.WishlistApi.Entities.Wishlist", null)
-                        .WithMany("Wishitems")
-                        .HasForeignKey("WishlistId");
+                    b.Property<Guid>("WishitemsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("WishlistsId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("WishitemsId", "WishlistsId");
+
+                    b.HasIndex("WishlistsId");
+
+                    b.ToTable("WishItemWishlist");
                 });
 
-            modelBuilder.Entity("Lidas.WishlistApi.Entities.Wishlist", b =>
+            modelBuilder.Entity("WishItemWishlist", b =>
                 {
-                    b.Navigation("Wishitems");
+                    b.HasOne("Lidas.WishlistApi.Entities.WishItem", null)
+                        .WithMany()
+                        .HasForeignKey("WishitemsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Lidas.WishlistApi.Entities.Wishlist", null)
+                        .WithMany()
+                        .HasForeignKey("WishlistsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
