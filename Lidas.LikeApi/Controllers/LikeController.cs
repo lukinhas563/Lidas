@@ -1,5 +1,6 @@
 ﻿using Lidas.LikeApi.Database;
 using Lidas.LikeApi.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,7 @@ namespace Lidas.LikeApi.Controllers
         }
 
         [HttpGet("{userId}")]
+        [Authorize]
         public async Task<IActionResult> GetAll(Guid userId)
         {
             var likeList = _context.Likelists
@@ -39,6 +41,7 @@ namespace Lidas.LikeApi.Controllers
         }
 
         [HttpPost("{userId}/{mangaId}")]
+        [Authorize]
         public IActionResult Like(Guid userId, Guid mangaId)
         {
             var likeList = _context.Likelists.SingleOrDefault(list => list.UserId == userId && !list.IsDeleted);
@@ -56,6 +59,7 @@ namespace Lidas.LikeApi.Controllers
         }
 
         [HttpDelete("{userId}/{mangaId}")]
+        [Authorize]
         public IActionResult Remove(Guid userId, Guid mangaId)
         {
             var likeList = _context.Likelists.SingleOrDefault(list => list.UserId == userId && !list.IsDeleted);
