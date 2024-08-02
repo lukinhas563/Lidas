@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using LikesApi.Database;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LikesApi.Controllers
 {
@@ -7,9 +9,17 @@ namespace LikesApi.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        [HttpGet]
+        private readonly AppDbContext _context;
+        public ValuesController(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        [HttpGet()]
         public IActionResult Get()
         {
+
+
             return Ok("Hello world");
         }
     }

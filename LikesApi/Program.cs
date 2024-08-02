@@ -1,6 +1,12 @@
+using LikesApi.Database;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Database
+//builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("LikesDb"));
+var connectString = builder.Configuration.GetConnectionString("LikesDb");
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectString));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
