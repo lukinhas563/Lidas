@@ -15,6 +15,9 @@ builder.Services.AddMassTransitService(builder.Configuration);
 var corsPolicy = "MyPolicy";
 builder.Services.AddCorsPolicyService(corsPolicy);
 
+// Refit
+builder.Services.AddRequestService();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

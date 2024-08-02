@@ -1,6 +1,8 @@
 ﻿using Lidas.LikeApi.Config;
 using Lidas.LikeApi.Consumers;
+using Lidas.LikeApi.Interfaces;
 using MassTransit;
+using Refit;
 
 namespace Lidas.LikeApi;
 
@@ -39,5 +41,10 @@ internal static class InfrastructureModule
                 policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
             });
         });
+    }
+
+    public static void AddRequestService(this IServiceCollection services)
+    {
+        services.AddRefitClient<IRequestService>().ConfigureHttpClient(c => c.BaseAddress = new Uri("http://mangaapi:8080"));
     }
 }

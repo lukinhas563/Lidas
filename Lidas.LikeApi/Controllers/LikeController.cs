@@ -1,4 +1,5 @@
 ﻿using Lidas.LikeApi.Database;
+using Lidas.LikeApi.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,13 +11,15 @@ namespace Lidas.LikeApi.Controllers
     public class LikeController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public LikeController(AppDbContext context)
+        private readonly IRequestService _request;
+        public LikeController(AppDbContext context, IRequestService request)
         {
             _context = context;
+            _request = request;
         }
 
         [HttpGet("{userId}")]
-        public IActionResult GetAll(Guid userId)
+        public async Task<IActionResult> GetAll(Guid userId)
         {
             var likeList = _context.Likelists
                 .Include(list => list.Likeitems)
@@ -24,7 +27,15 @@ namespace Lidas.LikeApi.Controllers
 
             if (likeList == null) return NotFound();
 
-            return Ok(likeList);
+            var mangaIds = likeList.Likeitems
+                .Where(item => !item.IsDeleted)
+                .Select(item => item.MangaId).ToList();
+
+            if (!mangaIds.Any()) return Ok(mangaIds);
+
+            var mangas = await _request.GetAll(mangaIds);
+
+            return Ok(mangas);
         }
 
         [HttpPost("{userId}/{mangaId}")]
