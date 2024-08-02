@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace LikesApi.Database.Migrations
+namespace Lidas.LikeApi.Database.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -45,30 +45,30 @@ namespace LikesApi.Database.Migrations
                 name: "LikeitemLikelist",
                 columns: table => new
                 {
-                    LikeItemsId = table.Column<Guid>(type: "uuid", nullable: false),
-                    LikeListsId = table.Column<Guid>(type: "uuid", nullable: false)
+                    LikeitemsId = table.Column<Guid>(type: "uuid", nullable: false),
+                    LikelistsId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LikeitemLikelist", x => new { x.LikeItemsId, x.LikeListsId });
+                    table.PrimaryKey("PK_LikeitemLikelist", x => new { x.LikeitemsId, x.LikelistsId });
                     table.ForeignKey(
-                        name: "FK_LikeitemLikelist_Likeitems_LikeItemsId",
-                        column: x => x.LikeItemsId,
+                        name: "FK_LikeitemLikelist_Likeitems_LikeitemsId",
+                        column: x => x.LikeitemsId,
                         principalTable: "Likeitems",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_LikeitemLikelist_Likelists_LikeListsId",
-                        column: x => x.LikeListsId,
+                        name: "FK_LikeitemLikelist_Likelists_LikelistsId",
+                        column: x => x.LikelistsId,
                         principalTable: "Likelists",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_LikeitemLikelist_LikeListsId",
+                name: "IX_LikeitemLikelist_LikelistsId",
                 table: "LikeitemLikelist",
-                column: "LikeListsId");
+                column: "LikelistsId");
         }
 
         /// <inheritdoc />

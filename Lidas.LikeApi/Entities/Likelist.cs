@@ -1,29 +1,29 @@
-﻿namespace LikesApi.Entities;
+﻿namespace Lidas.LikeApi.Entities;
 
-public class Likeitem
+public class Likelist
 {
     public Guid Id { get; set; }
-    public Guid MangaId { get; set; }
-    public List<Likelist> LikeLists { get; set; }
+    public Guid UserId { get; set; }
+    public List<Likeitem> Likeitems { get; set; }
 
     public bool IsDeleted { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
-    public Likeitem(Guid mangaId)
+    public Likelist(Guid userId)
     {
         Id = Guid.NewGuid();
-        MangaId = mangaId;
-        LikeLists = new List<Likelist>();
+        UserId = userId;
+        Likeitems = new List<Likeitem>();
 
         IsDeleted = false;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void Update(Guid mangaId)
+    public void Update(Guid userId)
     {
-        MangaId = mangaId;
+        UserId = userId;
 
         UpdatedAt = DateTime.UtcNow;
     }

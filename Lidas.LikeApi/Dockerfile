@@ -9,17 +9,17 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["LikesApi/LikesApi.csproj", "LikesApi/"]
-RUN dotnet restore "./LikesApi/LikesApi.csproj"
+COPY ["Lidas.LikeApi/Lidas.LikeApi.csproj", "Lidas.LikeApi/"]
+RUN dotnet restore "./Lidas.LikeApi/Lidas.LikeApi.csproj"
 COPY . .
-WORKDIR "/src/LikesApi"
-RUN dotnet build "./LikesApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/Lidas.LikeApi"
+RUN dotnet build "./Lidas.LikeApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./LikesApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./Lidas.LikeApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "LikesApi.dll"]
+ENTRYPOINT ["dotnet", "Lidas.LikeApi.dll"]

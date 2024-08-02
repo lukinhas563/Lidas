@@ -1,7 +1,7 @@
-﻿using LikesApi.Entities;
+﻿using Lidas.LikeApi.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace LikesApi.Database;
+namespace Lidas.LikeApi.Database;
 
 public class AppDbContext: DbContext
 {
@@ -23,7 +23,7 @@ public class AppDbContext: DbContext
 
             entity.Property(list => list.UserId).IsRequired();
 
-            entity.HasMany(list => list.LikeItems).WithMany(item => item.LikeLists);
+            entity.HasMany(list => list.Likeitems).WithMany(item => item.Likelists);
         });
 
         modelBuilder.Entity<Likeitem>(entity =>
@@ -32,7 +32,7 @@ public class AppDbContext: DbContext
 
             entity.Property(item => item.MangaId).IsRequired();
 
-            entity.HasMany(item => item.LikeLists).WithMany(list => list.LikeItems);
+            entity.HasMany(item => item.Likelists).WithMany(list => list.Likeitems);
         });
     }
 }

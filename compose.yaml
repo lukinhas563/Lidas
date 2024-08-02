@@ -35,10 +35,10 @@ services:
      networks:
        - lidas-network
 
-  likesapi:
+  likeapi:
      build:
        context: ../Lidas
-       dockerfile: Lidas.LikesApi/Dockerfile
+       dockerfile: Lidas.LikeApi/Dockerfile
      ports:
        - "8080:8080"
      depends_on:

@@ -18,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lidas.WishlistApi", "Lidas.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contracts", "Contracts\Contracts.csproj", "{37020404-8521-4005-B6E3-0F5B1A98321F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LikesApi", "LikesApi\LikesApi.csproj", "{C6C82668-75E7-4F95-AFD7-F2900295AB82}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lidas.LikeApi", "Lidas.LikeApi\Lidas.LikeApi.csproj", "{A920EFDE-3B10-4F68-B3B0-0BF446B30ACD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,10 +46,10 @@ Global
 		{37020404-8521-4005-B6E3-0F5B1A98321F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37020404-8521-4005-B6E3-0F5B1A98321F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37020404-8521-4005-B6E3-0F5B1A98321F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C6C82668-75E7-4F95-AFD7-F2900295AB82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C6C82668-75E7-4F95-AFD7-F2900295AB82}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C6C82668-75E7-4F95-AFD7-F2900295AB82}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C6C82668-75E7-4F95-AFD7-F2900295AB82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A920EFDE-3B10-4F68-B3B0-0BF446B30ACD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A920EFDE-3B10-4F68-B3B0-0BF446B30ACD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A920EFDE-3B10-4F68-B3B0-0BF446B30ACD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A920EFDE-3B10-4F68-B3B0-0BF446B30ACD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
