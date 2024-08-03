@@ -21,8 +21,6 @@ services:
     build:
       context: ../Lidas
       dockerfile: Lidas.MangaApi/Dockerfile
-    ports:
-       - "8080:8080"
     depends_on:
        - rabbitmq
     networks:

@@ -54,22 +54,16 @@ namespace Lidas.WishlistApi.Controllers
             return Ok(mangas);
         }
 
-        [HttpPost("{userId}")]
+        [HttpPost("{userId}/{mangaId}")]
         [Authorize]
-        public async Task<IActionResult> AddManga(Guid userId, WishitemInput input)
+        public async Task<IActionResult> AddManga(Guid userId, Guid mangaId)
         {
-            // Validate
-            var result = _validator.Wish.Validate(input);
-            var errors = result.Errors.Select(error => error.ErrorMessage);
-
-            if (!result.IsValid) return BadRequest(errors);
-
             // Database
-            var wishList = _context.Wishlists.SingleOrDefault(list => list.UserId == userId && !list.IsDeleted); // User wishList
+            var wishList = _context.Wishlists.SingleOrDefault(list => list.UserId == userId && !list.IsDeleted);
 
             if (wishList  == null) return NotFound();
 
-            var wishItem = _context.Wishitems.SingleOrDefault(item => item.MangaId == input.MangaId);
+            var wishItem = _context.Wishitems.SingleOrDefault(item => item.MangaId == mangaId && !item.IsDeleted);
 
             if (wishItem == null) return NotFound();
 

@@ -296,9 +296,9 @@
       ]
     },
     { // Wishlist - CREATE
-      "UpstreamPathTemplate": "/gateway/wishlist/{userId}",
+      "UpstreamPathTemplate": "/gateway/wishlist/{userId}/{mangaId}",
       "UpstreamHttpMethod": [ "Post" ],
-      "DownstreamPathTemplate": "/api/wishlist/{userId}",
+      "DownstreamPathTemplate": "/api/wishlist/{userId}/{mangaId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
