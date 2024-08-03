@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Lidas.MangaApi.Extensions;
 using Lidas.MangaApi.Models.InputModels;
 
 namespace Lidas.MangaApi.Validators;
@@ -29,7 +30,8 @@ public class MangaValidator: AbstractValidator<MangaInput>
             .MaximumLength(500).WithMessage("Description cannot exceed 500 characters.");
 
         RuleFor(manga => manga.Release)
-            .NotEmpty().WithMessage("Release is required.");
+            .NotEmpty().WithMessage("Release is required.")
+            .Must(IsUtcDate).WithMessage("Release date must be in UTC.");
 
     }
 
@@ -41,5 +43,10 @@ public class MangaValidator: AbstractValidator<MangaInput>
         var mimeType = file.ContentType.ToLowerInvariant();
 
         return permittedExtensions.Contains(extension) && permittedMimeTypes.Contains(mimeType);
+    }
+
+    private bool IsUtcDate(DateTime releaseDate)
+    {
+        return releaseDate.IsUtc();
     }
 }
