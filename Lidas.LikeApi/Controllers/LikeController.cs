@@ -2,6 +2,7 @@
 using Lidas.LikeApi.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -74,6 +75,21 @@ namespace Lidas.LikeApi.Controllers
             _context.SaveChanges();
 
             return NoContent();
+        }
+
+        [HttpGet("count/{mangaId}")]
+        [AllowAnonymous]
+        public IActionResult GetCount(Guid mangaId)
+        {
+            var manga = _context.Likeitems
+                .Include(item => item.Likelists)
+                .SingleOrDefault(item => item.MangaId == mangaId);
+
+            if (manga == null) return NotFound();
+
+            var count = manga.Likelists.Count();
+
+            return Ok(count);
         }
     }
 }

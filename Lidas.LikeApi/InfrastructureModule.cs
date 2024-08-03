@@ -19,8 +19,8 @@ internal static class InfrastructureModule
         {
             busConfigurator.SetKebabCaseEndpointNameFormatter();
 
-            busConfigurator.AddConsumer<UserCreateConsumer>();
-            busConfigurator.AddConsumer<MangaCreateConsumer>();
+            busConfigurator.AddConsumer<UserCreateLikeConsumer>();
+            busConfigurator.AddConsumer<MangaCreateLikeConsumer>();
 
             busConfigurator.UsingRabbitMq((ctx, cfg) =>
             {

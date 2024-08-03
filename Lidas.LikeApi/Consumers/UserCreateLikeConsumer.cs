@@ -5,11 +5,11 @@ using MassTransit;
 
 namespace Lidas.LikeApi.Consumers;
 
-public class UserCreateConsumer : IConsumer<UserCreateEvent>
+public class UserCreateLikeConsumer : IConsumer<UserCreateEvent>
 {
     private readonly AppDbContext _context;
-    private readonly ILogger<UserCreateConsumer> _logger;
-    public UserCreateConsumer(AppDbContext context, ILogger<UserCreateConsumer> logger)
+    private readonly ILogger<UserCreateLikeConsumer> _logger;
+    public UserCreateLikeConsumer(AppDbContext context, ILogger<UserCreateLikeConsumer> logger)
     {
         _context = context;
         _logger = logger;

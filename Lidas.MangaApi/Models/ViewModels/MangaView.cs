@@ -11,6 +11,7 @@ public class MangaView
     public string Name { get; set; }
     public string Description { get; set; }
     public DateTime Release { get; set; }
+    public int Likes { get; set; }
     public List<CategoryViewList> Categories { get; set; }
     public List<AuthorViewList> Authors { get; set; }
     public PageView<ChapterView> Chapters { get; set; }

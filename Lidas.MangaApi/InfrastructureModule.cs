@@ -6,6 +6,7 @@ using Lidas.MangaApi.Validators;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Refit;
 using System.Text;
 
 namespace Lidas.MangaApi;
@@ -79,5 +80,10 @@ internal static class InfrastructureModule
                 cfg.ConfigureEndpoints(ctx);
             });
         });
+    }
+
+    public static void AddRequestService(this IServiceCollection services)
+    {
+        services.AddRefitClient<IRequestService>().ConfigureHttpClient(c => c.BaseAddress = new Uri("http://likeapi:8080"));
     }
 }

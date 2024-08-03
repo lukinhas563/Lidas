@@ -27,13 +27,15 @@ namespace Lidas.MangaApi.Controllers
         private readonly IValidatorService _validator;
         private readonly IProvider _provider;
         private readonly IPublishEndpoint _publish;
+        private readonly IRequestService _request;
         public MangaController
             (
             AppDbContext context,
             IMapper mapper,
             IValidatorService validator,
             IProvider provider,
-            IPublishEndpoint publish
+            IPublishEndpoint publish,
+            IRequestService request
             )
         {
             _context = context;
@@ -41,6 +43,7 @@ namespace Lidas.MangaApi.Controllers
             _validator = validator;
             _provider = provider;
             _publish = publish;
+            _request = request;
         }
 
         /// <summary>
@@ -112,7 +115,7 @@ namespace Lidas.MangaApi.Controllers
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetById
+        public async Task<IActionResult> GetById
             (
             Guid id,
             [FromQuery] int page = 0,
@@ -166,6 +169,20 @@ namespace Lidas.MangaApi.Controllers
             // Mapper Manga
             var viewModel = _mapper.Map<MangaView>(manga);
             viewModel.Chapters = chapterPageView;
+
+            try
+            {
+                Console.WriteLine("START GET LIKE");
+                viewModel.Likes = await _request.GetCount(id);
+            } 
+            catch (Exception ex)
+            {
+                Console.WriteLine("FAIL GET LIKE");
+                viewModel.Likes = 0;
+            }
+
+            Console.WriteLine("FINISH GET LIKE");
+            Console.WriteLine($"LIKES {viewModel.Likes}");
 
             return Ok(viewModel);
         }

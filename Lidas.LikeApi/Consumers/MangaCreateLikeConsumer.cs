@@ -5,12 +5,12 @@ using MassTransit;
 
 namespace Lidas.LikeApi.Consumers;
 
-public class MangaCreateConsumer : IConsumer<MangaCreateEvent>
+public class MangaCreateLikeConsumer : IConsumer<MangaCreateEvent>
 {
     private readonly AppDbContext _context;
-    private readonly ILogger<MangaCreateConsumer> _logger;
+    private readonly ILogger<MangaCreateLikeConsumer> _logger;
 
-    public MangaCreateConsumer(AppDbContext context, ILogger<MangaCreateConsumer> logger)
+    public MangaCreateLikeConsumer(AppDbContext context, ILogger<MangaCreateLikeConsumer> logger)
     {
         _context = context;
         _logger = logger;

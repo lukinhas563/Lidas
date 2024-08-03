@@ -31,6 +31,9 @@ builder.Services.AddAuthenticationService(builder.Configuration);
 // MassTransit
 builder.Services.AddMassTransitService(builder.Configuration);
 
+// Request service
+builder.Services.AddRequestService();
+
 // Controller
 builder.Services.AddControllers()
     .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
