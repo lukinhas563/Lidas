@@ -74,7 +74,7 @@ namespace Lidas.MangaApi.Controllers
                 query = query.OrderByDescending(category => category.CreatedAt);
             }
 
-            var categories = query.Skip(page).Take(size).ToList();
+            var categories = query.Skip(page * size).Take(size).ToList();
 
             // Mapper
             var viewModel = _mapper.Map<List<CategoryViewList>>(categories);
@@ -98,18 +98,50 @@ namespace Lidas.MangaApi.Controllers
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetById(Guid id, [FromQuery] int page = 0, [FromQuery] int size = 10)
+        public IActionResult GetById
+            (
+            Guid id,
+            [FromQuery] int page = 0,
+            [FromQuery] int size = 10,
+            [FromQuery] string sortOrder = "desc",
+            [FromQuery] string name = null
+            )
         {
+            if (sortOrder != "desc" && sortOrder != "asc")
+            {
+                return BadRequest("Invalid sortOrder parameter. Use 'asc' for ascending or 'desc' for descending.");
+            }
+
             // Database
             var category = _context.Categories
+                .Where(category => category.Id == id && !category.IsDeleted)
                 .Include(category => category.Mangas)
-                .SingleOrDefault(category => category.Id == id && !category.IsDeleted);
+                .SingleOrDefault();
 
             if (category == null) return NotFound();
 
-            // Mapper Manga
-            var count = category.Mangas.Count();
-            var mangaPages = category.Mangas.Skip(page).Take(size).ToList();
+            var countQuery = category.Mangas.AsQueryable();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                countQuery = countQuery.Where(manga => manga.Name.Contains(name));
+            }
+
+            var count = countQuery.Count();
+
+            IQueryable<Manga> query = countQuery
+                .Where(manga => !manga.IsDeleted);
+
+            if (sortOrder == "asc")
+            {
+                query = query.OrderBy(manga => manga.CreatedAt);
+            }
+            else
+            {
+                query = query.OrderByDescending(manga => manga.CreatedAt);
+            }
+
+            var mangaPages = query.Skip(page * size).Take(size).ToList();
 
             var mangaView = _mapper.Map<List<MangaViewList>>(mangaPages);
             var mangaPageView = new PageView<MangaViewList>(page, size, count, mangaView);

@@ -98,8 +98,20 @@ namespace Lidas.MangaApi.Controllers
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetById(Guid id, [FromQuery] int page = 0, [FromQuery] int size = 10)
+        public IActionResult GetById
+            (
+            Guid id,
+            [FromQuery] int page = 0,
+            [FromQuery] int size = 10,
+            [FromQuery] string sortOrder = "desc",
+            [FromQuery] string name = null
+            )
         {
+            if (sortOrder != "desc" && sortOrder != "asc")
+            {
+                return BadRequest("Invalid sortOrder parameter. Use 'asc' for ascending or 'desc' for descending.");
+            }
+
             // Database
             var role = _context.Roles
                 .Include(role => role.Authors)
@@ -108,8 +120,30 @@ namespace Lidas.MangaApi.Controllers
             if (role == null) return NotFound();
 
             // Mapper Authors
-            var count = role.Authors.Count();
-            var authorPage = role.Authors.Skip(page).Take(size).ToList();
+            var countQuery = role.Authors.AsQueryable();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                var namePattern = $"%{name}%";
+                countQuery = countQuery.Where(author => EF.Functions.Like(author.Name, namePattern));
+            }
+
+            var count = countQuery.Count();
+
+
+            IQueryable<Author> query = countQuery
+                .Where(author => !author.IsDeleted);
+
+            if (sortOrder == "asc")
+            {
+                query = query.OrderBy(author => author.CreatedAt);
+            }
+            else
+            {
+                query = query.OrderByDescending(author => author.CreatedAt);
+            }
+
+            var authorPage = query.Skip(page).Take(size).ToList();
 
             var authorView = _mapper.Map<List<AuthorViewList>>(authorPage);
             var authorPageView = new PageView<AuthorViewList>(page, size, count, authorView);

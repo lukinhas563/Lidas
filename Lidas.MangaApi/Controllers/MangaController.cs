@@ -57,7 +57,7 @@ namespace Lidas.MangaApi.Controllers
             (
             [FromQuery] int page = 0,
             [FromQuery] int size = 10, 
-            [FromQuery] string sortOrder = "desc", 
+            [FromQuery] string sortOrder = "asc", 
             [FromQuery] string name = null
             )
         {
@@ -112,8 +112,20 @@ namespace Lidas.MangaApi.Controllers
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetById(Guid id, [FromQuery] int page = 0, [FromQuery] int size = 10)
+        public IActionResult GetById
+            (
+            Guid id,
+            [FromQuery] int page = 0,
+            [FromQuery] int size = 10,
+            [FromQuery] string sortOrder = "desc",
+            [FromQuery] string name = null
+            )
         {
+            if (sortOrder != "desc" && sortOrder != "asc")
+            {
+                return BadRequest("Invalid sortOrder parameter. Use 'asc' for ascending or 'desc' for descending.");
+            }
+
             // Database
             var manga = _context.Mangas
                 .Include(manga => manga.Categories)
@@ -124,10 +136,31 @@ namespace Lidas.MangaApi.Controllers
             if (manga == null) return NotFound();
 
             // Mapper chapters
-            var count = manga.Chapters.Count();
-            var chapterPages = manga.Chapters.Skip(page).Take(size).ToList();
+            var countQuery = manga.Chapters.AsQueryable();
 
-            var chapterView = _mapper.Map<List<ChapterView>>(manga.Chapters);
+            if (!string.IsNullOrEmpty(name))
+            {
+                var namePattern = $"%{name}%";
+                countQuery = countQuery.Where(chapter => EF.Functions.Like(chapter.Title, namePattern));
+            }
+
+            var count = countQuery.Count();
+
+            IQueryable<Chapter> query = countQuery
+                .Where(chapter => !chapter.IsDeleted);
+
+            if (sortOrder == "asc")
+            {
+                query = query.OrderBy(chapter => chapter.CreatedAt);
+            }
+            else
+            {
+                query = query.OrderByDescending(chapter => chapter.CreatedAt);
+            }
+
+            var chapterPages = query.Skip(page).Take(size).ToList();
+
+            var chapterView = _mapper.Map<List<ChapterView>>(chapterPages);
             var chapterPageView = new PageView<ChapterView>(page, size, count, chapterView);
 
             // Mapper Manga
