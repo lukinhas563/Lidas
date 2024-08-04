@@ -83,6 +83,22 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// Apply migrations at startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        // Log errors or handle them as needed
+        Console.WriteLine($"An error occurred applying migrations: {ex.Message}");
+    }
+}
+
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();

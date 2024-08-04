@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens de Solução", "{002057AA-2000-4570-A0A6-01C946F21FBE}"
 	ProjectSection(SolutionItems) = preProject
 		compose.yaml = compose.yaml
+		variables.env = variables.env
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lidas.GatewayApi", "Lidas.GatewayApi\Lidas.GatewayApi.csproj", "{4E15BEF3-829D-4F0B-97C2-F2967FB16217}"
@@ -18,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lidas.WishlistApi", "Lidas.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contracts", "Contracts\Contracts.csproj", "{37020404-8521-4005-B6E3-0F5B1A98321F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lidas.LikeApi", "Lidas.LikeApi\Lidas.LikeApi.csproj", "{A920EFDE-3B10-4F68-B3B0-0BF446B30ACD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lidas.LikeApi", "Lidas.LikeApi\Lidas.LikeApi.csproj", "{A920EFDE-3B10-4F68-B3B0-0BF446B30ACD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

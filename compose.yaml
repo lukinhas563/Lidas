@@ -1,3 +1,6 @@
+volumes:
+  lidas-database:
+
 services:
   gatewayapi:
     build:
@@ -13,6 +16,7 @@ services:
       context: ../Lidas
       dockerfile: Lidas.UserApi/Dockerfile
     depends_on:
+       - postgres
        - rabbitmq
     networks:
        - lidas-network
@@ -22,6 +26,7 @@ services:
       context: ../Lidas
       dockerfile: Lidas.MangaApi/Dockerfile
     depends_on:
+       - postgres
        - rabbitmq
     networks:
        - lidas-network
@@ -31,6 +36,7 @@ services:
        context: ../Lidas
        dockerfile: Lidas.WishlistApi/Dockerfile
      depends_on:
+       - postgres
        - rabbitmq
      networks:
        - lidas-network
@@ -40,9 +46,23 @@ services:
        context: ../Lidas
        dockerfile: Lidas.LikeApi/Dockerfile
      depends_on:
+       - postgres
        - rabbitmq
      networks:
        - lidas-network
+       
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - lidas-database:/var/lib/postgresql
+    networks:
+      - lidas-network
 
   rabbitmq:
     image: rabbitmq:3-management
